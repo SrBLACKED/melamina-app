@@ -66,9 +66,13 @@ select option{background:#1e2229;color:#e8e0cc}
 .tb-btn.activo span{color:#4a90d9}
 
 /* PANEL DERECHO — PIEZAS */
-#panel-piezas{position:absolute;right:0;top:0;bottom:0;width:160px;background:rgba(15,18,24,0.92);border-left:0.5px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;z-index:20;backdrop-filter:blur(8px)}
-.pp-header{padding:52px 10px 8px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#3a4050;font-weight:600;flex-shrink:0;display:flex;justify-content:space-between;align-items:flex-end}
+#panel-piezas{position:absolute;right:0;top:0;bottom:0;width:160px;background:rgba(15,18,24,0.92);border-left:0.5px solid rgba(255,255,255,0.07);display:flex;flex-direction:column;z-index:20;backdrop-filter:blur(8px);transition:transform .25s cubic-bezier(.32,.72,0,1)}
+#panel-piezas.collapsed{transform:translateX(152px)}
+.pp-header{padding:52px 8px 8px;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:#3a4050;font-weight:600;flex-shrink:0;display:flex;justify-content:space-between;align-items:flex-end}
 .pp-count{color:#4a5060;font-size:9px}
+.pp-toggle{position:absolute;left:-24px;top:50%;transform:translateY(-50%);width:24px;height:48px;background:rgba(15,18,24,0.92);border:0.5px solid rgba(255,255,255,0.07);border-right:none;border-radius:8px 0 0 8px;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:21}
+.pp-toggle svg{width:12px;height:12px;stroke:rgba(255,255,255,0.4);fill:none;stroke-width:2;stroke-linecap:round;transition:transform .25s}
+#panel-piezas.collapsed .pp-toggle svg{transform:rotate(180deg)}
 .pp-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:4px 8px 8px}
 .pt{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.04);border:0.5px solid rgba(255,255,255,0.07);border-radius:7px;padding:6px 7px;margin-bottom:4px}
 .pt-dot{width:7px;height:7px;border-radius:2px;flex-shrink:0}
@@ -79,7 +83,7 @@ select option{background:#1e2229;color:#e8e0cc}
 .pt-cfg svg{width:10px;height:10px;stroke:rgba(255,255,255,0.4);fill:none;stroke-width:1.8;pointer-events:none}
 
 /* HUD TOP */
-#hud-top{position:absolute;top:0;left:56px;right:160px;padding:14px 12px 8px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:15;background:linear-gradient(to bottom,rgba(15,18,24,0.7),transparent)}
+#hud-top{position:absolute;top:0;left:56px;right:8px;padding:14px 12px 8px;display:flex;justify-content:space-between;align-items:center;pointer-events:none;z-index:15;background:linear-gradient(to bottom,rgba(15,18,24,0.7),transparent)}
 .hud-title{font-size:13px;font-weight:600;color:#e8e0cc}
 .hud-sub{font-size:9px;color:#4a5060;margin-top:1px}
 .hud-badge{font-size:10px;color:#5a6070;background:rgba(255,255,255,0.06);border:0.5px solid rgba(255,255,255,0.1);padding:3px 9px;border-radius:16px;pointer-events:none}
@@ -88,7 +92,7 @@ select option{background:#1e2229;color:#e8e0cc}
 #hint3d{position:absolute;bottom:80px;left:50%;transform:translateX(-50%);font-size:11px;color:#3a4050;letter-spacing:.05em;text-align:center;pointer-events:none;white-space:nowrap;z-index:10}
 
 /* PANELS FLOTANTES (agregar/editar) */
-.fpanel{position:absolute;bottom:0;left:56px;right:160px;background:#181c22;border-top:0.5px solid rgba(74,144,217,0.25);border-radius:16px 16px 0 0;padding:0 16px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:30;max-height:80vh;overflow-y:auto}
+.fpanel{position:absolute;bottom:0;left:0;right:0;background:#181c22;border-top:0.5px solid rgba(74,144,217,0.25);border-radius:16px 16px 0 0;padding:0 16px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:30;max-height:85vh;overflow-y:auto}
 .fpanel.open{transform:translateY(0)}
 .fp-handle{width:32px;height:3px;background:#2a3040;border-radius:2px;margin:12px auto 14px}
 .fp-title{font-size:11px;color:#4a90d9;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px;font-weight:600}
@@ -129,7 +133,7 @@ select option{background:#1e2229;color:#e8e0cc}
 .accion-btn:active{background:rgba(74,144,217,0.15)}
 
 /* PANEL REPISAS */
-#panel-repisas{position:absolute;bottom:0;left:56px;right:160px;background:#181c22;border-top:0.5px solid rgba(74,144,217,0.25);border-radius:16px 16px 0 0;padding:0 16px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:30}
+#panel-repisas{position:absolute;bottom:0;left:0;right:0;background:#181c22;border-top:0.5px solid rgba(74,144,217,0.25);border-radius:16px 16px 0 0;padding:0 16px 32px;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);z-index:30}
 #panel-repisas.open{transform:translateY(0)}
 
 /* WINCHA */
@@ -226,7 +230,7 @@ select option{background:#1e2229;color:#e8e0cc}
 
   <!-- BARRA IZQUIERDA -->
   <div id="toolbar">
-    <div class="tb-btn activo" id="tb-3d" onclick="setTool('3d',this)" title="Vista 3D">
+    <div class="tb-btn activo" id="tb-3d" onclick="vistaFrontal()" title="Vista frontal">
       <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
       <span>3D</span>
     </div>
@@ -256,6 +260,11 @@ select option{background:#1e2229;color:#e8e0cc}
       <span>Vista</span>
     </div>
     <div class="tb-sep"></div>
+    <div class="tb-btn" id="tb-selall" onclick="selTodo()" title="Seleccionar todo">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <span>Selec.</span>
+    </div>
+    <div class="tb-sep"></div>
     <div class="tb-btn" id="tb-redo" onclick="redo()" title="Rehacer">
       <svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
       <span>Hacer</span>
@@ -273,6 +282,9 @@ select option{background:#1e2229;color:#e8e0cc}
 
   <!-- PANEL PIEZAS DERECHO -->
   <div id="panel-piezas">
+    <div class="pp-toggle" onclick="togglePanelPiezas()" id="pp-toggle">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
     <div class="pp-header">Piezas<span class="pp-count" id="pp-count">0</span></div>
     <div class="pp-list" id="pp-list"></div>
   </div>
@@ -578,8 +590,18 @@ function deselAll(){
   document.getElementById('menu-acciones').classList.remove('show');
 }
 
+// ── PANEL PIEZAS TOGGLE ──
+let panelPiezasAbierto=true;
+function togglePanelPiezas(){
+  panelPiezasAbierto=!panelPiezasAbierto;
+  document.getElementById('panel-piezas').classList.toggle('collapsed',!panelPiezasAbierto);
+}
+
+// ── HERRAMIENTAS ──
+let herramienta='3d';
+let modoWincha=false,winchaP1=null,winchaCanvas,winchaCtx,snapAct=null;
+
 function setTool(t,el){
-  // cerrar wincha si salimos de medir
   if(herramienta==='medir'&&t!=='medir'){
     modoWincha=false;winchaP1=null;
     document.getElementById('wincha-hint').style.display='none';
@@ -590,11 +612,36 @@ function setTool(t,el){
   document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('activo'));
   if(el)el.classList.add('activo');
   const hint=document.getElementById('hint3d');
-  const hints={medir:'Acerca a un vértice para medir',empujar:'Selecciona pieza y arrastra ← →',mover:'Selecciona pieza y arrastra',rotar:'Selecciona pieza y arrastra',rotar3d:'Arrastra para rotar la vista'};
+  const hints={medir:'Acerca a un vértice para anclar',empujar:'Selecciona una pieza y tócala',mover:'Selecciona pieza y arrastra',rotar:'Selecciona pieza y arrastra',rotar3d:'Arrastra para rotar la vista'};
   if(hints[t]){hint.style.display='block';hint.textContent=hints[t];}
   else hint.style.display='none';
-  if(t==='medir'){modoWincha=true;document.getElementById('wincha-hint').style.display='block';document.getElementById('wincha-hint').textContent='Acerca al primer vértice';}
-  if(t==='3d')document.getElementById('tb-3d').classList.add('activo');
+  if(t==='medir'){
+    modoWincha=true;
+    ensureWinchaCanvas();
+    document.getElementById('wincha-hint').style.display='block';
+    document.getElementById('wincha-hint').textContent='Acerca al primer vértice';
+  }
+  // Empujar: si hay pieza seleccionada, abrir panel directo
+  if(t==='empujar'&&piezaSel){
+    abrirPanelEmpujar(piezaSel);
+  }
+}
+
+function abrirPanelEmpujar(p){
+  document.getElementById('f-alto').value=p.alto.toFixed(2);
+  document.getElementById('f-ancho').value=p.ancho.toFixed(2);
+  document.getElementById('f-fondo').value=p.fondo.toFixed(2);
+  document.getElementById('f-nombre').value=p.nombre;
+  selPos=p.pos;
+  document.querySelectorAll('.pos-btn').forEach(b=>b.classList.toggle('sel',b.dataset.pos===p.pos));
+  document.getElementById('pos-desc').textContent=NOMBRES_POS[p.pos]||p.pos;
+  const ev=p.espesor?[(p.espesor/10).toFixed(1)]:['1.8'];
+  const map=['1.5','1.8','2.5'];const em=map.reduce((a,c)=>Math.abs(+c-+ev[0])<Math.abs(+a-+ev[0])?c:a);
+  document.getElementById('f-esp').value=em;
+  modEdit=true;editId=p.id;
+  document.getElementById('fpanel-title').textContent='Editar dimensiones';
+  document.getElementById('fp-ok').textContent='Guardar';
+  document.getElementById('fpanel').classList.add('open');
 }
 
 // ── RAYCASTER ──
@@ -663,14 +710,8 @@ function setupEvents(){
       if(pt){manipPieza.mesh.position.x=pt.x+manipOffset.x;manipPieza.mesh.position.z=pt.z+manipOffset.z;}
     }
     if(herramienta==='empujar'){
-      const delta=(cx-manipStartX)*0.05;
-      const base=manipPieza.espesor/10||1.8;
-      const newW=Math.max(0.5,base+delta);
-      // Redimensionar en tiempo real
-      if(manipPieza.mesh.children[0]){
-        manipPieza.mesh.children[0].scale.x=newW/manipPieza.ancho;
-        manipPieza.mesh.children[1].scale.x=newW/manipPieza.ancho;
-      }
+      // Solo visual feedback — delta acumulado
+      manipDeltaX=(cx-manipStartX)*0.05;
     }
     if(herramienta==='rotar'){
       const delta=(cx-manipStartX)*0.01;
@@ -679,22 +720,25 @@ function setupEvents(){
   }
   function terminarManip(cx,cy){
     if(!manipPieza)return;
-    if(herramienta==='empujar'&&manipPieza.mesh.children[0]){
-      // Aplicar nuevo espesor permanentemente
+    if(herramienta==='empujar'){
       const delta=(cx-manipStartX)*0.05;
-      const newW=Math.max(0.5,(manipPieza.espesor/10||1.8)+delta);
+      const base=manipPieza.ancho;
+      const newW=Math.max(0.5,base+delta);
       guardarParaUndo();
-      const mesh=crearMesh(newW,manipPieza.alto,manipPieza.fondo,0xffffff);
-      mesh.position.copy(manipPieza.mesh.position);
-      mesh.rotation.copy(manipPieza.mesh.rotation);
-      scene.remove(manipPieza.mesh);scene.add(mesh);
-      const idx=piezas.indexOf(manipPieza);
-      manipPieza.ancho=newW;manipPieza.espesor=Math.round(newW*10);manipPieza.mesh=mesh;
-      piezas[idx]=manipPieza;
-      selPieza(manipPieza);
+      // Recrear mesh completo con nuevo ancho
+      const newMesh=crearMesh(newW,manipPieza.alto,manipPieza.fondo,0xffffff);
+      newMesh.position.copy(manipPieza.mesh.position);
+      newMesh.rotation.copy(manipPieza.mesh.rotation);
+      scene.remove(manipPieza.mesh);
+      scene.add(newMesh);
+      manipPieza.ancho=newW;
+      manipPieza.espesor=Math.round(newW*10);
+      manipPieza.mesh=newMesh;
+      piezas[piezas.indexOf(manipPieza)]=manipPieza;
+      selPieza(null);
       renderPiezas();
     }
-    manipPieza=null;manipulando=false;
+    manipPieza=null;manipulando=false;manipDeltaX=0;
   }
 
   // ── MOUSE ──
@@ -839,12 +883,19 @@ function cerrarFpanel(){document.getElementById('fpanel').classList.remove('open
 function calcPos(pos,w,h,d){
   const b=bbox();
   switch(pos){
-    case'LI':return{x:b.cx-b.w/2-w/2,y:h/2,z:b.cz};
-    case'LD':return{x:b.cx+b.w/2+w/2,y:h/2,z:b.cz};
+    case'LI':return{x:b.minX-w/2,y:h/2,z:b.cz};
+    case'LD':return{x:b.maxX+w/2,y:h/2,z:b.cz};
     case'TS':return{x:b.cx,y:b.maxY+h/2,z:b.cz};
     case'BI':return{x:b.cx,y:h/2,z:b.cz};
-    case'R':{const rn=piezas.filter(p=>p.pos==='R').length;return{x:b.cx,y:(b.h/(rn+2))*(rn+1),z:b.cz};}
-    case'DV':{const dn=piezas.filter(p=>p.pos==='DV').length;return{x:b.cx-b.w/4+(dn)*(b.w/4),y:b.cy,z:b.cz};}
+    case'R':{
+      const rn=piezas.filter(p=>p.pos==='R').length;
+      const yStep=b.h/(rn+2);
+      return{x:b.cx,y:b.minY+yStep*(rn+1),z:b.cz};
+    }
+    case'DV':{
+      const dn=piezas.filter(p=>p.pos==='DV').length;
+      return{x:b.cx+((dn%2===0?1:-1)*b.w/4),y:b.cy,z:b.cz};
+    }
     default:return{x:b.cx,y:h/2,z:b.cz};
   }
 }
@@ -976,13 +1027,23 @@ function confirmarRepisas(){
 const undoSt=[],redoSt=[];
 function capState(){return piezas.map(p=>({id:p.id,codigo:p.codigo,pos:p.pos,nombre:p.nombre,alto:p.alto,ancho:p.ancho,fondo:p.fondo,espesor:p.espesor,color:p.color,grupoId:p.grupoId,px:p.mesh.position.x,py:p.mesh.position.y,pz:p.mesh.position.z}));}
 function guardarParaUndo(){undoSt.push(JSON.stringify(capState()));redoSt.length=0;if(undoSt.length>50)undoSt.shift();updUndoUI();}
-function restoreState(s){piezas.forEach(p=>scene.remove(p.mesh));piezas.length=0;JSON.parse(s).forEach(d=>{const mesh=crearMesh(d.ancho,d.alto,d.fondo,0xffffff);mesh.position.set(d.px,d.py,d.pz);scene.add(mesh);piezas.push({...d,mesh});});renderPiezas();updUndoUI();}
+function restoreState(s){
+  piezas.forEach(p=>scene.remove(p.mesh));
+  piezas.length=0;
+  JSON.parse(s).forEach(d=>{
+    const mesh=crearMesh(d.ancho,d.alto,d.fondo,0xffffff);
+    mesh.position.set(d.px,d.py,d.pz);
+    // Restaurar color del dot pero mantener mesh blanco
+    scene.add(mesh);
+    piezas.push({...d,mesh});
+  });
+  renderPiezas();updUndoUI();
+}
 function undo(){if(!undoSt.length)return;redoSt.push(JSON.stringify(capState()));restoreState(undoSt.pop());}
 function redo(){if(!redoSt.length)return;undoSt.push(JSON.stringify(capState()));restoreState(redoSt.pop());}
 function updUndoUI(){document.getElementById('tb-undo').style.opacity=undoSt.length?1:0.3;document.getElementById('tb-redo').style.opacity=redoSt.length?1:0.3;}
 
 // ── WINCHA ──
-let modoWincha=false,winchaP1=null,winchaCanvas,winchaCtx,snapAct=null;
 const SNAP_D=28;
 
 function obtenerVerts(){
@@ -1000,8 +1061,19 @@ function vertCercano(cx,cy){
   verts.forEach(v=>{const d=Math.hypot(v.sx-lx,v.sy-ly);if(d<bd){bd=d;mejor=v;}});
   return bd<SNAP_D?mejor:null;
 }
+function ensureWinchaCanvas(){
+  if(winchaCanvas&&winchaCtx)return;
+  const wrap=document.getElementById('wrap3d');
+  winchaCanvas=document.createElement('canvas');
+  winchaCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:6';
+  wrap.appendChild(winchaCanvas);
+  winchaCtx=winchaCanvas.getContext('2d');
+  winchaCanvas.width=wrap.clientWidth;
+  winchaCanvas.height=wrap.clientHeight;
+}
 function dibujarWincha(cx,cy){
-  if(!winchaCanvas||!winchaCtx)return;
+  ensureWinchaCanvas();
+  if(!winchaCtx)return;
   winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
   const rect=renderer.domElement.getBoundingClientRect();
   const snap=vertCercano(cx,cy);snapAct=snap;
@@ -1028,6 +1100,7 @@ function dibujarWincha(cx,cy){
   }
 }
 function winchaClick(cx,cy){
+  ensureWinchaCanvas();
   const snap=vertCercano(cx,cy);
   const rect=renderer.domElement.getBoundingClientRect();
   let p3d,sx,sy;
@@ -1058,8 +1131,18 @@ function winchaClick(cx,cy){
 }
 function cerrarWincha(){
   modoWincha=false;winchaP1=null;
-  document.getElementById('wincha-hint').style.display='none';document.getElementById('wincha-res').style.display='none';
+  document.getElementById('wincha-hint').style.display='none';
+  document.getElementById('wincha-res').style.display='none';
   if(winchaCtx)winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
+}
+
+// ── VISTA FRONTAL (botón 3D) ──
+function vistaFrontal(){
+  const b=bbox();
+  target.set(b.cx,b.cy,b.cz);
+  theta=0; phi=5;
+  radius=Math.max(80,Math.max(b.w,b.h,b.d)*2.2);
+  updateCam();
   setTool('3d',document.getElementById('tb-3d'));
 }
 
@@ -1071,12 +1154,13 @@ function abrirPreview(){
       renderer.render(scene,camera);
       const img=renderer.domElement.toDataURL('image/png');
       const b=bbox();
-      const titulo=document.getElementById('hud-title').textContent;
+      const titulo=document.getElementById('hud-title').textContent||'Proyecto';
+      const marca=(proyectoData&&proyectoData.marca)||'';
       document.getElementById('ps-title').textContent=titulo;
-      document.getElementById('ps-sub').textContent=proyectoData.marca+' · '+piezas.length+' piezas';
+      document.getElementById('ps-sub').textContent=(marca?marca+' · ':'')+piezas.length+' piezas';
       const pHTML=piezas.map(p=>`<div class="ps-pieza">
-        <div class="ps-pdot" style="background:#${p.color.toString(16).padStart(6,'0')}"></div>
-        <div class="ps-pinfo"><div class="ps-pcode">${p.codigo||p.nombre} · ${p.pos}</div><div class="ps-pdim">${p.alto} × ${p.ancho} × ${p.fondo} cm</div></div>
+        <div class="ps-pdot" style="background:#${(p.color||0x4a90d9).toString(16).padStart(6,'0')}"></div>
+        <div class="ps-pinfo"><div class="ps-pcode">${p.codigo||p.nombre} · ${p.pos}</div><div class="ps-pdim">${(+p.alto).toFixed(1)} × ${(+p.ancho).toFixed(1)} × ${(+p.fondo).toFixed(1)} cm</div></div>
         <div class="ps-pesp">${p.espesor||18} mm</div>
       </div>`).join('');
       document.getElementById('ps-body').innerHTML=`
@@ -1090,7 +1174,7 @@ function abrirPreview(){
         </div>
         <div class="ps-sec">Piezas (${piezas.length})</div>${pHTML}`;
       document.getElementById('preview-screen').classList.add('open');
-    }catch(err){console.error(err);}
+    }catch(err){console.error('Preview error:',err);alert('Error al generar preview: '+err.message);}
   });
 }
 function cerrarPreview(){document.getElementById('preview-screen').classList.remove('open');}
