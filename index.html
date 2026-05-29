@@ -10,26 +10,57 @@
 <title>Melamina3D</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%;overflow:hidden;background:#b8b8b6;font-family:system-ui,-apple-system,sans-serif}
+html,body{height:100%;overflow:hidden;background:#2a2e35;font-family:system-ui,-apple-system,sans-serif}
 #wrap{position:relative;width:100%;height:100vh;height:100dvh}
 canvas{display:block;width:100%!important;height:100%!important;touch-action:none}
 
-.hud-top{position:absolute;top:0;left:0;right:0;padding:48px 16px 12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;background:linear-gradient(to bottom,rgba(184,184,182,0.95),transparent)}
-.app-title{font-size:16px;font-weight:600;color:#3a3020;letter-spacing:.03em}
-.app-sub{font-size:10px;color:#7a7060;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
-.count-badge{font-size:11px;color:#5a5040;background:rgba(255,255,255,0.6);border:0.5px solid rgba(0,0,0,0.12);padding:5px 12px;border-radius:20px;pointer-events:none}
+.hud-top{position:absolute;top:0;left:0;right:0;padding:48px 16px 12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;background:linear-gradient(to bottom,rgba(42,46,53,0.95),transparent)}
+.app-title{font-size:16px;font-weight:600;color:#e8e0cc;letter-spacing:.03em}
+.app-sub{font-size:10px;color:#6a7080;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.count-badge{font-size:11px;color:#a0a8b0;background:rgba(255,255,255,0.08);border:0.5px solid rgba(255,255,255,0.12);padding:5px 12px;border-radius:20px;pointer-events:none}
 
-.lista-wrap{position:absolute;top:100px;left:12px;z-index:10;max-width:150px}
-.pieza-tag{display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.88);border:0.5px solid rgba(0,0,0,0.1);border-radius:7px;padding:6px 8px;margin-bottom:4px;backdrop-filter:blur(4px);cursor:pointer;transition:background .12s}
-.pieza-tag:active{background:rgba(255,255,255,0.98)}
+.lista-wrap{position:absolute;top:100px;left:12px;z-index:10;max-width:160px}
+.pieza-tag{display:flex;align-items:center;gap:6px;background:rgba(30,34,40,0.88);border:0.5px solid rgba(255,255,255,0.1);border-radius:7px;padding:6px 8px;margin-bottom:4px;backdrop-filter:blur(4px);user-select:none}
+.pieza-tag:active{background:rgba(40,44,52,0.98)}
 .pieza-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 .pieza-info{flex:1;min-width:0}
-.pieza-name{font-size:11px;color:#3a3020;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pieza-dim{font-size:10px;color:#7a7060;margin-top:1px}
-.pieza-del{font-size:16px;color:#aaa090;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
+.pieza-name{font-size:11px;color:#d0c8b8;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pieza-dim{font-size:10px;color:#6a7080;margin-top:1px}
+.pieza-del{font-size:16px;color:#4a5060;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0}
 .pieza-del:active{color:#e05050}
+.pieza-cfg{width:22px;height:22px;border-radius:5px;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:background .12s}
+.pieza-cfg:active{background:rgba(255,255,255,0.18)}
+.pieza-cfg svg{width:12px;height:12px;stroke:rgba(255,255,255,0.5);fill:none;stroke-width:1.8;stroke-linecap:round}
 
-.hint{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);font-size:12px;color:#9a9080;letter-spacing:.05em;text-align:center;pointer-events:none;white-space:nowrap}
+.btn-print{position:absolute;bottom:96px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.1);border:0.5px solid rgba(255,255,255,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s;z-index:10}
+.btn-print:active{background:rgba(255,255,255,0.2)}
+.btn-print svg{width:20px;height:20px;stroke:rgba(255,255,255,0.7);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn-undo,.btn-redo{position:absolute;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,opacity .15s;z-index:10}
+.btn-undo{bottom:152px}
+.btn-redo{bottom:208px}
+.btn-undo:active,.btn-redo:active{background:rgba(255,255,255,0.18)}
+.btn-undo svg,.btn-redo svg{width:18px;height:18px;stroke:rgba(255,255,255,0.6);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn-undo.disabled,.btn-redo.disabled{opacity:0.25;pointer-events:none}
+
+/* MENÚ CONTEXTUAL */
+.ctx-overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,0.25);backdrop-filter:blur(2px);display:none}
+.ctx-overlay.open{display:block}
+.ctx-menu{position:fixed;left:12px;z-index:31;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.18);min-width:200px;transform:scale(0.95);opacity:0;transition:transform .18s cubic-bezier(.32,.72,0,1),opacity .15s}
+.ctx-menu.open{transform:scale(1);opacity:1}
+.ctx-header{padding:10px 14px 8px;border-bottom:0.5px solid rgba(0,0,0,0.07)}
+.ctx-header-name{font-size:13px;font-weight:600;color:#1a1810}
+.ctx-header-dim{font-size:10px;color:#7a7060;margin-top:2px}
+.ctx-item{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;transition:background .1s;font-size:13px;color:#1a1810}
+.ctx-item:active{background:#f0f0ee}
+.ctx-item-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px}
+.ctx-item-info{flex:1}
+.ctx-item-label{font-weight:500}
+.ctx-item-sub{font-size:10px;color:#7a7060;margin-top:1px}
+.ctx-divider{height:0.5px;background:rgba(0,0,0,0.07);margin:0}
+.ctx-item.danger .ctx-item-label{color:#e05050}
+.ctx-item.danger .ctx-item-icon{background:#fff0f0}
+
+.hint{position:absolute;bottom:110px;left:50%;transform:translateX(-50%);font-size:12px;color:#5a6070;letter-spacing:.05em;text-align:center;pointer-events:none;white-space:nowrap}
 
 .btn-add{position:absolute;bottom:28px;right:20px;width:56px;height:56px;border-radius:50%;background:#4a90d9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(74,144,217,0.4);transition:transform .12s,background .12s;z-index:10}
 .btn-add:active{transform:scale(.92);background:#6aaae8}
@@ -55,9 +86,112 @@ canvas{display:block;width:100%!important;height:100%!important;touch-action:non
 .btn-cancel{padding:13px 18px;background:transparent;color:#7a7060;border:0.5px solid rgba(0,0,0,0.12);border-radius:9px;font-size:14px;cursor:pointer;font-family:inherit}
 
 select option{background:#fff;color:#1a1810}
+
+/* PANTALLA DE INICIO */
+#pantalla-inicio{position:fixed;inset:0;z-index:100;background:#1c2028;display:flex;flex-direction:column;overflow-y:auto;-webkit-overflow-scrolling:touch}
+#pantalla-inicio.oculta{display:none}
+.inicio-header{padding:60px 24px 24px;text-align:center}
+.logo-wrap{width:72px;height:72px;background:rgba(74,144,217,0.12);border:0.5px solid rgba(74,144,217,0.3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+.logo-wrap svg{width:36px;height:36px;stroke:#4a90d9;fill:none;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.inicio-titulo{font-size:26px;font-weight:700;color:#e8e0cc;letter-spacing:-.01em}
+.inicio-sub{font-size:13px;color:#5a6070;margin-top:6px}
+.inicio-body{flex:1;padding:0 20px 40px}
+.inicio-section{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#4a5060;font-weight:600;margin-bottom:10px;margin-top:24px}
+.inicio-field{margin-bottom:12px}
+.inicio-field label{display:block;font-size:11px;color:#6a7080;letter-spacing:.06em;text-transform:uppercase;margin-bottom:6px}
+.inicio-field input,.inicio-field select{width:100%;background:#242830;border:0.5px solid rgba(255,255,255,0.1);border-radius:10px;color:#e8e0cc;font-family:inherit;font-size:16px;padding:12px 14px;outline:none;appearance:none;-webkit-appearance:none;transition:border-color .15s}
+.inicio-field input:focus,.inicio-field select:focus{border-color:#4a90d9}
+.dims-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.dim-card{background:#242830;border:0.5px solid rgba(255,255,255,0.08);border-radius:12px;padding:14px 10px;text-align:center}
+.dim-card label{display:block;font-size:10px;color:#5a6070;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px}
+.dim-card input{width:100%;background:transparent;border:none;outline:none;font-family:inherit;font-size:28px;font-weight:300;color:#e8e0cc;text-align:center;padding:0;-webkit-appearance:none}
+.dim-card input:focus{color:#4a90d9}
+.dim-card-unit{font-size:11px;color:#4a5060;margin-top:4px}
+.tipo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.tipo-btn{padding:12px 6px;background:#242830;border:0.5px solid rgba(255,255,255,0.08);border-radius:10px;text-align:center;cursor:pointer;transition:all .15s;user-select:none}
+.tipo-btn.sel{background:rgba(74,144,217,0.12);border-color:rgba(74,144,217,0.4)}
+.tipo-btn-icon{font-size:20px;margin-bottom:4px}
+.tipo-btn-label{font-size:11px;color:#6a7080;font-weight:500}
+.tipo-btn.sel .tipo-btn-label{color:#4a90d9}
+.btn-continuar{width:100%;padding:16px;background:#4a90d9;color:#fff;border:none;border-radius:12px;font-family:inherit;font-size:16px;font-weight:600;cursor:pointer;margin-top:28px;letter-spacing:.02em;transition:opacity .15s;box-shadow:0 4px 20px rgba(74,144,217,0.35)}
+.btn-continuar:active{opacity:.85}
+.accion-btn{display:flex;flex-direction:column;align-items:center;padding:10px 16px;background:transparent;border:none;color:#a0b8d8;font-family:inherit;font-size:11px;font-weight:500;cursor:pointer;border-radius:10px;transition:background .12s;letter-spacing:.04em;text-transform:uppercase}
+.accion-btn:active{background:rgba(74,144,217,0.15)}
 </style>
 </head>
 <body>
+<!-- PANTALLA DE INICIO -->
+<div id="pantalla-inicio">
+  <div class="inicio-header">
+    <div class="logo-wrap">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="9" x2="9" y2="21"/></svg>
+    </div>
+    <div class="inicio-titulo">MelaminaApp</div>
+    <div class="inicio-sub">Diseño de muebles con IA</div>
+  </div>
+
+  <div class="inicio-body">
+    <div class="inicio-section">nombre del proyecto</div>
+    <div class="inicio-field">
+      <input type="text" id="i-nombre" placeholder="ej. Closet habitación principal" autocomplete="off">
+    </div>
+
+    <div class="inicio-section">tipo de mueble</div>
+    <div class="tipo-grid">
+      <div class="tipo-btn sel" data-tipo="closet" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">🚪</div>
+        <div class="tipo-btn-label">Closet</div>
+      </div>
+      <div class="tipo-btn" data-tipo="estante" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">📚</div>
+        <div class="tipo-btn-label">Estante</div>
+      </div>
+      <div class="tipo-btn" data-tipo="gabinete" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">🗄️</div>
+        <div class="tipo-btn-label">Gabinete</div>
+      </div>
+      <div class="tipo-btn" data-tipo="cajones" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">🗃️</div>
+        <div class="tipo-btn-label">Cajones</div>
+      </div>
+      <div class="tipo-btn" data-tipo="escritorio" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">💼</div>
+        <div class="tipo-btn-label">Escritorio</div>
+      </div>
+      <div class="tipo-btn" data-tipo="otro" onclick="selTipo(this)">
+        <div class="tipo-btn-icon">✏️</div>
+        <div class="tipo-btn-label">Otro</div>
+      </div>
+    </div>
+
+    <div class="inicio-section">dimensiones (cm)</div>
+    <div class="dims-grid">
+      <div class="dim-card">
+        <label>Alto</label>
+        <input type="number" id="i-alto" value="160" inputmode="decimal" min="10" max="280">
+        <div class="dim-card-unit">cm</div>
+      </div>
+      <div class="dim-card">
+        <label>Ancho</label>
+        <input type="number" id="i-ancho" value="40" inputmode="decimal" min="10" max="300">
+        <div class="dim-card-unit">cm</div>
+      </div>
+      <div class="dim-card">
+        <label>Profundidad</label>
+        <input type="number" id="i-prof" value="50" inputmode="decimal" min="10" max="80">
+        <div class="dim-card-unit">cm</div>
+      </div>
+      <div class="dim-card">
+        <label>Espesor</label>
+        <input type="number" id="i-esp" value="1.8" inputmode="decimal" step="0.1" min="1">
+        <div class="dim-card-unit">cm (18mm)</div>
+      </div>
+    </div>
+
+    <button class="btn-continuar" onclick="iniciarProyecto()">Crear mueble →</button>
+  </div>
+</div>
+
 <div id="wrap">
   <div class="hud-top">
     <div>
@@ -69,6 +203,75 @@ select option{background:#fff;color:#1a1810}
 
   <div class="lista-wrap" id="lista"></div>
   <div class="hint" id="hint">Toca + para agregar tu primera pieza</div>
+
+  <!-- MENÚ CONTEXTUAL -->
+  <div class="ctx-overlay" id="ctx-overlay" onclick="cerrarCtx()"></div>
+  <div class="ctx-menu" id="ctx-menu">
+    <div class="ctx-header">
+      <div class="ctx-header-name" id="ctx-nombre"></div>
+      <div class="ctx-header-dim" id="ctx-dim"></div>
+    </div>
+    <div class="ctx-item" onclick="ctxEditar()">
+      <div class="ctx-item-icon" style="background:#eef3fc">✏️</div>
+      <div class="ctx-item-info"><div class="ctx-item-label">Editar</div><div class="ctx-item-sub">Cambiar medidas y posición</div></div>
+    </div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item" onclick="ctxDuplicar('independiente')">
+      <div class="ctx-item-icon" style="background:#eefaf3">📋</div>
+      <div class="ctx-item-info"><div class="ctx-item-label">Duplicar independiente</div><div class="ctx-item-sub">Copia libre, sin vínculo</div></div>
+    </div>
+    <div class="ctx-item" onclick="ctxDuplicar('grupo')">
+      <div class="ctx-item-icon" style="background:#fdf5e8">🔗</div>
+      <div class="ctx-item-info"><div class="ctx-item-label">Duplicar en grupo</div><div class="ctx-item-sub">Cambios se sincronizan</div></div>
+    </div>
+    <div class="ctx-divider"></div>
+    <div class="ctx-item danger" onclick="ctxEliminar()">
+      <div class="ctx-item-icon">🗑️</div>
+      <div class="ctx-item-info"><div class="ctx-item-label">Eliminar</div></div>
+    </div>
+  </div>
+
+  <button class="btn-redo disabled" id="btn-redo" title="Rehacer">
+    <svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
+  </button>
+  <button class="btn-undo disabled" id="btn-undo" title="Deshacer">
+    <svg viewBox="0 0 24 24"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 00-4-4H4"/></svg>
+  </button>
+
+  <button class="btn-print" id="btn-print" title="Imprimir despiece">
+    <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+  </button>
+
+  <!-- MENÚ ACCIONES (selección múltiple) -->
+  <div id="menu-acciones" style="display:none;position:absolute;bottom:100px;left:50%;transform:translateX(-50%);z-index:15;background:rgba(20,24,30,0.96);border:0.5px solid rgba(74,144,217,0.4);border-radius:14px;padding:6px;display:none;flex-direction:row;gap:4px;backdrop-filter:blur(8px);box-shadow:0 8px 32px rgba(0,0,0,0.4)">
+    <button class="accion-btn" onclick="abrirPanelRepisas()">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-bottom:3px"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      Repisas
+    </button>
+    <button class="accion-btn" onclick="deseleccionarTodo()">
+      <svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;margin-bottom:3px"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      Cancelar
+    </button>
+  </div>
+
+  <!-- PANEL REPISAS -->
+  <div class="panel" id="panel-repisas">
+    <div class="panel-handle"></div>
+    <div class="panel-title">Agregar repisas</div>
+    <div class="field">
+      <label>Cantidad de repisas</label>
+      <input type="number" id="r-cantidad" value="3" min="1" max="20" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>Espacio entre repisas (cm)</label>
+      <input type="number" id="r-espacio" value="27" min="5" step="0.5" inputmode="decimal">
+      <div style="font-size:11px;color:#9a9080;margin-top:6px" id="r-info">Se distribuyen desde la base interna hacia arriba</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn-cancel" onclick="cerrarPanelRepisas()">Cancelar</button>
+      <button class="btn-ok" onclick="confirmarRepisas()">Agregar</button>
+    </div>
+  </div>
 
   <button class="btn-add" id="btn-add">
     <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -118,8 +321,62 @@ select option{background:#fff;color:#1a1810}
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
+// PANTALLA DE INICIO
+let tipoSeleccionado='closet';
+function selTipo(el){
+  document.querySelectorAll('.tipo-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+  tipoSeleccionado=el.dataset.tipo;
+}
+
+function iniciarProyecto(){
+  const nombre=document.getElementById('i-nombre').value||'Mi proyecto';
+  const alto=+document.getElementById('i-alto').value||160;
+  const ancho=+document.getElementById('i-ancho').value||40;
+  const prof=+document.getElementById('i-prof').value||50;
+  const esp=+document.getElementById('i-esp').value||1.8;
+
+  // Ocultar pantalla de inicio
+  document.getElementById('pantalla-inicio').classList.add('oculta');
+  // Actualizar título
+  document.querySelector('.app-title').textContent=nombre;
+  document.querySelector('.app-sub').textContent=tipoSeleccionado;
+
+  // Generar las 4 piezas base del mueble
+  generarPiezasBase(alto, ancho, prof, esp);
+}
+
+function generarPiezasBase(alto, ancho, prof, esp){
+  // En Three.js position = centro del objeto
+  // LI — x: borde izq + esp/2,  y: centro = alto/2
+  _crearPiezaBase(esp, alto, prof, 'LI', -ancho/2 + esp/2,  alto/2);
+  // LD — x: borde der - esp/2
+  _crearPiezaBase(esp, alto, prof, 'LD',  ancho/2 - esp/2,  alto/2);
+  // BI — ancho interior entre laterales, y: esp/2
+  _crearPiezaBase(ancho - esp*2, esp, prof, 'BI', 0, esp/2);
+  // TS — y: alto - esp/2
+  _crearPiezaBase(ancho - esp*2, esp, prof, 'TS', 0, alto - esp/2);
+
+  const b=bbox();
+  target.set(b.cx, b.cy, b.cz);
+  radius=Math.max(100, Math.max(b.w, b.h, b.d)*2.8);
+  updateCam();
+  renderLista();
+  document.getElementById('hint').style.display='none';
+}
+
+function _crearPiezaBase(w, h, d, pos, cx, cy){
+  const codigo=siguienteCodigo();
+  const mesh=crearMesh(w, h, d, 0xffffff);
+  mesh.position.set(cx, cy, 0);
+  scene.add(mesh);
+  piezas.push({id:Date.now()+Math.random(), codigo, pos, nombre:codigo, alto:h, ancho:w, fondo:d, espesor:18, mesh, color:colorAleatorio(), grupoId:null});
+}
+
 const COLORES={LI:0xffffff,LD:0xffffff,TS:0xffffff,BI:0xffffff,R:0xffffff,DV:0xffffff};
-const COLORES_LISTA={LI:0x3a8add,LD:0x2db87a,TS:0xd4a020,BI:0xe05050,R:0x8888aa,DV:0xb07adc};
+const COLORES_LISTA={LI:0x3a8add,LD:0x3a8add,TS:0x3a8add,BI:0x3a8add,R:0x3a8add,DV:0x3a8add};
+const COLOR_LIBRE=0x2db87a;   // verde — copia independiente
+// grupo hereda el color del original
 const NOMBRES_POS={LI:'Lateral izquierdo',LD:'Lateral derecho',TS:'Tapa superior',BI:'Base inferior',R:'Repisa',DV:'División vertical'};
 const DEFAULTS={LI:{alto:180,ancho:50,fondo:50},LD:{alto:180,ancho:50,fondo:50},TS:{alto:180,ancho:60,fondo:50},BI:{alto:180,ancho:60,fondo:50},R:{alto:180,ancho:60,fondo:50},DV:{alto:180,ancho:50,fondo:50}};
 
@@ -133,25 +390,38 @@ renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 wrap.insertBefore(renderer.domElement,wrap.firstChild);
 
 const scene=new THREE.Scene();
-scene.background=new THREE.Color(0xb8b8b6);
-scene.fog=new THREE.FogExp2(0xb8b8b6,0.004);
+scene.background=new THREE.Color(0x2a2e35);
+scene.fog=new THREE.FogExp2(0x2a2e35,0.003);
 
 const camera=new THREE.PerspectiveCamera(42,wrap.clientWidth/wrap.clientHeight,0.1,600);
 camera.position.set(100,80,100);
 camera.lookAt(0,40,0);
 
 // LIGHTS
-scene.add(new THREE.AmbientLight(0xffffff,0.7));
-const sun=new THREE.DirectionalLight(0xffffff,0.6);
+scene.add(new THREE.AmbientLight(0xffffff,0.9));
+const sun=new THREE.DirectionalLight(0xffffff,1.0);
 sun.position.set(80,120,60);sun.castShadow=true;
 sun.shadow.mapSize.width=1024;sun.shadow.mapSize.height=1024;
 scene.add(sun);
-const fill=new THREE.DirectionalLight(0xe8e8ff,0.3);
+const fill=new THREE.DirectionalLight(0xffffff,0.5);
 fill.position.set(-60,30,-60);scene.add(fill);
+const fill2=new THREE.DirectionalLight(0xffffff,0.3);
+fill2.position.set(0,30,80);scene.add(fill2);
 
-// GRID
-const grid=new THREE.GridHelper(300,30,0xb0b0ae,0xc0c0be);
+// GRID tipo cuadrícula de taller
+const grid=new THREE.GridHelper(300,30,0x4a5060,0x3a4050);
+grid.material.transparent=true;
+grid.material.opacity=0.6;
 scene.add(grid);
+
+// Plano de suelo sutil
+const floorGeo=new THREE.PlaneGeometry(300,300);
+const floorMat=new THREE.MeshStandardMaterial({color:0x22262d,roughness:1,metalness:0});
+const floor=new THREE.Mesh(floorGeo,floorMat);
+floor.rotation.x=-Math.PI/2;
+floor.position.y=-0.1;
+floor.receiveShadow=true;
+scene.add(floor);
 
 // CAMERA CONTROL
 let theta=45,phi=30,radius=160;
@@ -171,9 +441,78 @@ updateCam();
 
 const cvs=renderer.domElement;
 let mouseStartX=0,mouseStartY=0,mouseMoved=false;
-cvs.addEventListener('mousedown',e=>{if(e.target===cvs){dragging=true;px=e.clientX;py=e.clientY;mouseStartX=e.clientX;mouseStartY=e.clientY;mouseMoved=false;}});
-window.addEventListener('mousemove',e=>{if(!dragging)return;const dx=e.clientX-mouseStartX,dy=e.clientY-mouseStartY;if(Math.hypot(dx,dy)>4)mouseMoved=true;theta-=(e.clientX-px)*0.35;phi=Math.max(-5,Math.min(85,phi+(e.clientY-py)*0.25));px=e.clientX;py=e.clientY;updateCam();});
-window.addEventListener('mouseup',()=>dragging=false);
+let dragSelecting=false;
+let selRect={x1:0,y1:0,x2:0,y2:0};
+
+// Canvas de selección superpuesto
+const selCanvas=document.createElement('canvas');
+selCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:5';
+wrap.appendChild(selCanvas);
+function resizeSelCanvas(){selCanvas.width=wrap.clientWidth;selCanvas.height=wrap.clientHeight;}
+resizeSelCanvas();
+const selCtx=selCanvas.getContext('2d');
+
+function dibujarRectSel(){
+  selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
+  if(!dragSelecting)return;
+  const x=Math.min(selRect.x1,selRect.x2),y=Math.min(selRect.y1,selRect.y2);
+  const w=Math.abs(selRect.x2-selRect.x1),h=Math.abs(selRect.y2-selRect.y1);
+  selCtx.strokeStyle='rgba(74,144,217,0.9)';
+  selCtx.lineWidth=1.5;
+  selCtx.setLineDash([5,3]);
+  selCtx.strokeRect(x,y,w,h);
+  selCtx.fillStyle='rgba(74,144,217,0.08)';
+  selCtx.fillRect(x,y,w,h);
+}
+
+// Detectar si el mousedown cae sobre una pieza
+function hitTestPiezas(clientX,clientY){
+  const rect=cvs.getBoundingClientRect();
+  const mx=((clientX-rect.left)/rect.width)*2-1;
+  const my=-((clientY-rect.top)/rect.height)*2+1;
+  const ray=new THREE.Raycaster();
+  const m=new THREE.Vector2(mx,my);
+  ray.setFromCamera(m,camera);
+  const meshes=piezas.map(p=>p.mesh.children[0]).filter(Boolean);
+  return ray.intersectObjects(meshes).length>0;
+}
+
+cvs.addEventListener('mousedown',e=>{
+  if(e.target!==cvs)return;
+  mouseStartX=e.clientX;mouseStartY=e.clientY;mouseMoved=false;
+  const sobrePieza=hitTestPiezas(e.clientX,e.clientY);
+  if(sobrePieza){
+    // Rotar cámara
+    dragging=true;px=e.clientX;py=e.clientY;
+  } else {
+    // Drag select
+    dragSelecting=true;
+    const rect=cvs.getBoundingClientRect();
+    selRect={x1:e.clientX-rect.left,y1:e.clientY-rect.top,x2:e.clientX-rect.left,y2:e.clientY-rect.top};
+  }
+});
+
+window.addEventListener('mousemove',e=>{
+  const dx=e.clientX-mouseStartX,dy=e.clientY-mouseStartY;
+  if(Math.hypot(dx,dy)>4)mouseMoved=true;
+  if(dragging){theta-=(e.clientX-px)*0.35;phi=Math.max(-5,Math.min(85,phi+(e.clientY-py)*0.25));px=e.clientX;py=e.clientY;updateCam();}
+  if(dragSelecting){
+    const rect=cvs.getBoundingClientRect();
+    selRect.x2=e.clientX-rect.left;selRect.y2=e.clientY-rect.top;
+    dibujarRectSel();
+  }
+});
+
+window.addEventListener('mouseup',e=>{
+  if(dragSelecting){
+    dragSelecting=false;
+    selCtx.clearRect(0,0,selCanvas.width,selCanvas.height);
+    const w=Math.abs(selRect.x2-selRect.x1),h=Math.abs(selRect.y2-selRect.y1);
+    if(w>10&&h>10) seleccionarTodo();
+  }
+  dragging=false;
+});
+
 cvs.addEventListener('wheel',e=>{e.preventDefault();radius=Math.max(20,Math.min(300,radius+e.deltaY*0.08));updateCam();},{passive:false});
 
 let t1=null,t2=null,ld=0;
@@ -223,8 +562,107 @@ function crearMesh(w,h,d,color){
   const edges=new THREE.EdgesGeometry(geo);
   const lmat=new THREE.LineBasicMaterial({color:0x888880,transparent:true,opacity:0.5});
   const wire=new THREE.LineSegments(edges,lmat);
+  wire.name='edges';
   const g=new THREE.Group();g.add(mesh);g.add(wire);
   return g;
+}
+
+// SELECCIÓN MULTIPLE
+let todoSeleccionado=false;
+let piezaSeleccionada=null;
+
+function seleccionarTodo(){
+  todoSeleccionado=true;
+  // Bordes azules a todas las piezas
+  piezas.forEach(p=>{
+    const wire=p.mesh.getObjectByName('edges');
+    if(wire){wire.material.color.setHex(0x4a90d9);wire.material.opacity=1;}
+  });
+  document.querySelectorAll('.pieza-tag').forEach(t=>t.style.borderColor='rgba(74,144,217,0.5)');
+  mostrarMenuAcciones();
+}
+
+function mostrarMenuAcciones(){
+  const m=document.getElementById('menu-acciones');
+  m.style.display='flex';
+  setTimeout(()=>m.style.opacity='1',10);
+}
+function ocultarMenuAcciones(){
+  const m=document.getElementById('menu-acciones');
+  m.style.display='none';
+}
+function abrirPanelRepisas(){
+  ocultarMenuAcciones();
+  // Calcular espacio útil interno
+  const bi=piezas.find(p=>p.pos==='BI');
+  const ts=piezas.find(p=>p.pos==='TS');
+  const esp=bi?bi.alto:1.8;
+  const altoBi=bi?bi.mesh.position.y+bi.alto/2:0;
+  const altoTs=ts?ts.mesh.position.y-ts.alto/2:160;
+  const espacioUtil=Math.round(altoTs-altoBi);
+  const cant=+document.getElementById('r-cantidad').value||3;
+  const espacioSug=Math.round(espacioUtil/(cant+1)*10)/10;
+  document.getElementById('r-espacio').value=espacioSug;
+  document.getElementById('r-info').textContent=`Espacio útil interno: ${espacioUtil} cm`;
+  document.getElementById('panel-repisas').classList.add('open');
+  // actualizar info cuando cambia cantidad
+  document.getElementById('r-cantidad').oninput=()=>{
+    const c=+document.getElementById('r-cantidad').value||1;
+    document.getElementById('r-espacio').value=Math.round(espacioUtil/(c+1)*10)/10;
+  };
+}
+function cerrarPanelRepisas(){
+  document.getElementById('panel-repisas').classList.remove('open');
+  deseleccionarTodo();
+}
+function confirmarRepisas(){
+  const cantidad=+document.getElementById('r-cantidad').value||3;
+  const espacio=+document.getElementById('r-espacio').value||27;
+  const bi=piezas.find(p=>p.pos==='BI');
+  const li=piezas.find(p=>p.pos==='LI');
+  const ld=piezas.find(p=>p.pos==='LD');
+  const esp=bi?bi.alto:1.8;
+  const yBase=bi?(bi.mesh.position.y+bi.alto/2):esp;
+  const anchoInt=li&&ld?(ld.mesh.position.x-li.mesh.position.x-li.ancho):60;
+  const cx=li&&ld?(li.mesh.position.x+li.ancho/2+anchoInt/2):0;
+  const prof=li?li.fondo:50;
+  for(let i=1;i<=cantidad;i++){
+    const y=yBase+espacio*i;
+    const codigo=siguienteCodigo();
+    const mesh=crearMesh(anchoInt,esp,prof,0xffffff);
+    mesh.position.set(cx,y,0);
+    scene.add(mesh);
+    piezas.push({id:Date.now()+Math.random(),codigo,pos:'R',nombre:codigo,alto:esp,ancho:anchoInt,fondo:prof,espesor:Math.round(esp*10),mesh,color:colorAleatorio(),grupoId:null});
+  }
+  const b=bbox();target.set(b.cx,b.cy,b.cz);updateCam();
+  capturarEstado();
+  renderLista();
+  cerrarPanelRepisas();
+}
+
+function deseleccionarTodo(){
+  piezas.forEach(p=>{
+    const wire=p.mesh.getObjectByName('edges');
+    if(wire){wire.material.color.setHex(0x888880);wire.material.opacity=0.5;}
+  });
+  document.querySelectorAll('.pieza-tag').forEach(t=>t.style.borderColor='');
+  ocultarMenuAcciones();
+}
+function seleccionarPieza(pieza){
+  // Deseleccionar anterior
+  if(piezaSeleccionada){
+    const wire=piezaSeleccionada.mesh.getObjectByName('edges');
+    if(wire){wire.material.color.setHex(0x888880);wire.material.opacity=0.5;wire.material.linewidth=1;}
+  }
+  document.querySelectorAll('.pieza-tag').forEach(t=>t.style.borderColor='');
+  if(!pieza||piezaSeleccionada===pieza){piezaSeleccionada=null;return;}
+  piezaSeleccionada=pieza;
+  // Poner bordes azules
+  const wire=pieza.mesh.getObjectByName('edges');
+  if(wire){wire.material.color.setHex(0x4a90d9);wire.material.opacity=1;wire.material.linewidth=2;}
+  // Resaltar tarjeta
+  const tag=document.getElementById('tag-'+piezas.indexOf(pieza));
+  if(tag) tag.style.borderColor='rgba(74,144,217,0.6)';
 }
 
 function agregarPieza(){
@@ -232,9 +670,9 @@ function agregarPieza(){
   const ancho=+document.getElementById('f-ancho').value||60;
   const fondo=+document.getElementById('f-fondo').value||50;
   const espesor=+document.getElementById('f-espesor').value||1.8;
-  const nombre=document.getElementById('f-nombre').value||(NOMBRES_POS[selPos]||'Pieza');
+  const codigo=siguienteCodigo();
+  const nombre=document.getElementById('f-nombre').value||codigo;
   const color=COLORES[selPos]||0xffffff;
-  const colorLista=COLORES_LISTA[selPos]||0x888888;
 
   // Para piezas estructurales usar espesor como dimensión delgada
   let w=ancho, h=alto, d=fondo;
@@ -245,16 +683,18 @@ function agregarPieza(){
   const p=calcPos(selPos,w,h,d);
   mesh.position.set(p.x,p.y,p.z);
   scene.add(mesh);
-  piezas.push({id:Date.now(),pos:selPos,nombre,alto:h,ancho:w,fondo:d,espesor:espesor*10,mesh,color:colorLista});
+  piezas.push({id:Date.now(),codigo,pos:selPos,nombre,alto:h,ancho:w,fondo:d,espesor:Math.round(espesor*10),mesh,color:colorAleatorio(),grupoId:null});
   const b=bbox();target.set(b.cx,b.cy,b.cz);
   radius=Math.max(80,Math.max(b.w,b.h,b.d)*2.5);
   updateCam();renderLista();cerrarPanel();
+  capturarEstado();
   document.getElementById('hint').style.display='none';
 }
 
 function eliminarPieza(id){
   const i=piezas.findIndex(p=>p.id===id);
   if(i===-1)return;
+  capturarEstado();
   scene.remove(piezas[i].mesh);piezas.splice(i,1);
   renderLista();
   if(!piezas.length)document.getElementById('hint').style.display='';
@@ -262,15 +702,131 @@ function eliminarPieza(id){
 
 function renderLista(){
   document.getElementById('count').textContent=piezas.length+' pieza'+(piezas.length!==1?'s':'');
-  document.getElementById('lista').innerHTML=piezas.map(p=>`
-    <div class="pieza-tag" onclick="abrirPanelEdicion(${p.id})">
-      <div class="pieza-dot" style="background:#${p.color.toString(16).padStart(6,'0')}"></div>
-      <div class="pieza-info">
-        <div class="pieza-name">${p.pos} · ${p.nombre}</div>
-        <div class="pieza-dim">${p.alto}×${p.ancho}×${p.fondo}</div>
+  const lista=document.getElementById('lista');
+
+  // Guardar IDs en mapa para lookup seguro sin conversión numérica
+  lista.innerHTML=piezas.map((p,i)=>{
+    const esGrupo=!!p.grupoId;
+    const badge=esGrupo
+      ?`<span style="font-size:9px;background:rgba(58,138,221,0.25);color:#6aacee;border-radius:3px;padding:1px 4px;margin-left:3px">G</span>`
+      :'';
+    const dotColor='#'+p.color.toString(16).padStart(6,'0');
+    return`<div class="pieza-tag" id="tag-${i}">
+      <div class="pieza-dot" style="background:${dotColor}"></div>
+      <div class="pieza-info" style="cursor:pointer;flex:1;min-width:0" id="editar-${i}">
+        <div class="pieza-name" style="pointer-events:none">${p.codigo||p.nombre} · ${p.pos}${badge}</div>
+        <div class="pieza-dim" style="pointer-events:none">${p.alto}×${p.ancho}×${p.fondo}</div>
       </div>
-      <div class="pieza-del" onclick="event.stopPropagation();eliminarPieza(${p.id})">×</div>
-    </div>`).join('');
+      <div class="pieza-cfg" id="cfg-${i}" style="cursor:pointer">
+        <svg viewBox="0 0 24 24" style="pointer-events:none"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Asignar listeners directamente por índice — sin conversión numérica de IDs
+  piezas.forEach((p,i)=>{
+    const editarEl=document.getElementById('editar-'+i);
+    const cfgEl=document.getElementById('cfg-'+i);
+    if(editarEl) editarEl.addEventListener('click',()=>abrirPanelEdicion(p.id));
+    if(cfgEl) cfgEl.addEventListener('click',e=>{e.stopPropagation();abrirCtx(p.id);});
+  });
+}
+
+// MENÚ CONTEXTUAL
+let ctxId=null;
+function abrirCtx(id){
+  ctxId=id;
+  const p=piezas.find(x=>x.id===id);if(!p)return;
+  document.getElementById('ctx-nombre').textContent=`${p.pos} · ${p.nombre}`;
+  document.getElementById('ctx-dim').textContent=`${p.alto} × ${p.ancho} × ${p.fondo} cm`;
+  const menu=document.getElementById('ctx-menu');
+  const tag=document.getElementById('tag-'+id);
+  const rect=tag?tag.getBoundingClientRect():{top:200,bottom:220};
+  const top=Math.min(rect.bottom+6,window.innerHeight-240);
+  menu.style.top=top+'px';
+  document.getElementById('ctx-overlay').classList.add('open');
+  setTimeout(()=>menu.classList.add('open'),10);
+}
+function cerrarCtx(){
+  document.getElementById('ctx-overlay').classList.remove('open');
+  document.getElementById('ctx-menu').classList.remove('open');
+  ctxId=null;
+}
+function ctxEditar(){const id=ctxId;cerrarCtx();if(id)abrirPanelEdicion(id);}
+function ctxEliminar(){const id=ctxId;cerrarCtx();if(id)eliminarPieza(id);}
+
+// NOMENCLATURA
+let contadorPiezas=0;
+function siguienteCodigo(){
+  contadorPiezas++;
+  return 'P'+contadorPiezas;
+}
+function codigoGrupo(orig){
+  // buscar cuántas copias de grupo ya existen del mismo origen
+  const grupoId=orig.grupoId||orig.id;
+  const copias=piezas.filter(p=>p.grupoId===grupoId).length;
+  // extraer el número base del original ej "P1" -> "P1.1"
+  const base=orig.codigo||orig.nombre;
+  return base+'.'+( copias+1);
+}
+function colorAleatorio(){
+  const colores=[0xe05050,0x2db87a,0xd4a020,0x8a5cd8,0xe07830,0x3abcbc,0xd45090,0x70a830];
+  // evitar repetir el color de piezas existentes si es posible
+  const usados=piezas.map(p=>p.color);
+  const disponibles=colores.filter(c=>!usados.includes(c));
+  const pool=disponibles.length?disponibles:colores;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function ctxDuplicar(modo){
+  const idOrig=ctxId;
+  cerrarCtx();
+  const origIdx=piezas.findIndex(x=>x.id===idOrig);
+  if(origIdx===-1){console.warn('No se encontró pieza',idOrig);return;}
+  const orig=piezas[origIdx];
+
+  const gap=5;
+  const offsetX=orig.ancho+gap;
+  const mesh=crearMesh(orig.ancho,orig.alto,orig.fondo,0xffffff);
+  mesh.position.set(orig.mesh.position.x+offsetX, orig.mesh.position.y, orig.mesh.position.z);
+  scene.add(mesh);
+
+  const nuevoId=Date.now();
+  let nuevaPieza;
+
+  if(modo==='independiente'){
+    const codigo=siguienteCodigo();
+    nuevaPieza={...orig, id:nuevoId, codigo, nombre:codigo, mesh, color:colorAleatorio(), grupoId:null};
+    // libre va al final
+    piezas.push(nuevaPieza);
+  } else {
+    const grupoId=orig.grupoId||orig.id;
+    if(!orig.grupoId) piezas[origIdx].grupoId=grupoId;
+    const codigo=codigoGrupo(orig);
+    nuevaPieza={...orig, id:nuevoId, codigo, nombre:codigo, mesh, color:orig.color, grupoId};
+    // grupo se inserta justo debajo del original
+    piezas.splice(origIdx+1, 0, nuevaPieza);
+  }
+
+  const b=bbox();target.set(b.cx,b.cy,b.cz);
+  updateCam();
+  capturarEstado();
+  renderLista();
+}
+
+// Sincronizar cambios en grupo al guardar edición
+function sincronizarGrupo(idEditado){
+  const editada=piezas.find(x=>x.id===idEditado);
+  if(!editada||!editada.grupoId)return;
+  piezas.forEach(p=>{
+    if(p.id===idEditado||p.grupoId!==editada.grupoId)return;
+    scene.remove(p.mesh);
+    const mesh=crearMesh(editada.ancho,editada.alto,editada.fondo,0xffffff);
+    mesh.position.copy(p.mesh.position);
+    scene.add(mesh);
+    p.alto=editada.alto;p.ancho=editada.ancho;p.fondo=editada.fondo;
+    p.nombre=editada.nombre;p.espesor=editada.espesor;p.mesh=mesh;
+  });
 }
 
 // PANEL
@@ -278,7 +834,71 @@ let selPos='LI';
 let modoEdicion=false;
 let editandoId=null;
 
-document.getElementById('btn-add').onclick=()=>abrirPanelNuevo();
+// UNDO / REDO
+const undoStack=[];
+const redoStack=[];
+
+function capturarEstado(){
+  // Serializa solo los datos (no el mesh)
+  const estado=piezas.map(p=>({
+    id:p.id, codigo:p.codigo, pos:p.pos, nombre:p.nombre,
+    alto:p.alto, ancho:p.ancho, fondo:p.fondo, espesor:p.espesor,
+    color:p.color, grupoId:p.grupoId,
+    px:p.mesh.position.x, py:p.mesh.position.y, pz:p.mesh.position.z
+  }));
+  undoStack.push(JSON.stringify(estado));
+  redoStack.length=0; // limpiar redo al hacer nueva acción
+  if(undoStack.length>50) undoStack.shift();
+  actualizarBotonesHistorial();
+}
+
+function restaurarEstado(estadoStr){
+  // Limpiar meshes actuales
+  piezas.forEach(p=>scene.remove(p.mesh));
+  piezas.length=0;
+  const estado=JSON.parse(estadoStr);
+  estado.forEach(s=>{
+    const mesh=crearMesh(s.ancho,s.alto,s.fondo,0xffffff);
+    mesh.position.set(s.px,s.py,s.pz);
+    scene.add(mesh);
+    piezas.push({...s,mesh});
+  });
+  renderLista();
+  actualizarBotonesHistorial();
+}
+
+function undo(){
+  if(!undoStack.length)return;
+  // Guardar estado actual en redo
+  const estadoActual=piezas.map(p=>({
+    id:p.id,codigo:p.codigo,pos:p.pos,nombre:p.nombre,
+    alto:p.alto,ancho:p.ancho,fondo:p.fondo,espesor:p.espesor,
+    color:p.color,grupoId:p.grupoId,
+    px:p.mesh.position.x,py:p.mesh.position.y,pz:p.mesh.position.z
+  }));
+  redoStack.push(JSON.stringify(estadoActual));
+  restaurarEstado(undoStack.pop());
+}
+
+function redo(){
+  if(!redoStack.length)return;
+  const estadoActual=piezas.map(p=>({
+    id:p.id,codigo:p.codigo,pos:p.pos,nombre:p.nombre,
+    alto:p.alto,ancho:p.ancho,fondo:p.fondo,espesor:p.espesor,
+    color:p.color,grupoId:p.grupoId,
+    px:p.mesh.position.x,py:p.mesh.position.y,pz:p.mesh.position.z
+  }));
+  undoStack.push(JSON.stringify(estadoActual));
+  restaurarEstado(redoStack.pop());
+}
+
+function actualizarBotonesHistorial(){
+  document.getElementById('btn-undo').classList.toggle('disabled',undoStack.length===0);
+  document.getElementById('btn-redo').classList.toggle('disabled',redoStack.length===0);
+}
+
+document.getElementById('btn-undo').onclick=undo;
+document.getElementById('btn-redo').onclick=redo;
 document.getElementById('btn-cancel').onclick=cerrarPanel;
 document.getElementById('btn-ok').onclick=()=>modoEdicion?guardarEdicion():agregarPieza();
 
@@ -311,7 +931,12 @@ function abrirPanelEdicion(id){
   document.getElementById('f-alto').value=p.alto;
   document.getElementById('f-ancho').value=p.ancho;
   document.getElementById('f-fondo').value=p.fondo;
-  document.getElementById('f-espesor').value=(p.espesor/10).toFixed(1);
+  // espesor guardado en mm (ej 18), selector espera cm (1.8)
+  const espCm=p.espesor ? (p.espesor/10).toFixed(1) : '1.8';
+  // mapear al valor más cercano del select
+  const espValores=['1.5','1.8','2.5'];
+  const espMapped=espValores.reduce((prev,curr)=>Math.abs(+curr-+espCm)<Math.abs(+prev-+espCm)?curr:prev);
+  document.getElementById('f-espesor').value=espMapped;
   document.getElementById('f-nombre').value=p.nombre;
   document.getElementById('panel').classList.add('open');
 }
@@ -324,15 +949,18 @@ function guardarEdicion(){
   const fondo=+document.getElementById('f-fondo').value||50;
   const espesor=+document.getElementById('f-espesor').value||1.8;
   const nombre=document.getElementById('f-nombre').value||(NOMBRES_POS[selPos]||'Pieza');
-  let w=ancho,h=alto,d=fondo;
+  // w, h, d son las dimensiones reales del mesh
+  let w=ancho, h=alto, d=fondo;
   if(['LI','LD','DV'].includes(selPos)){w=espesor;}
   if(['TS','BI','R'].includes(selPos)){h=espesor;}
-  // Actualizar mesh
   scene.remove(piezas[i].mesh);
   const mesh=crearMesh(w,h,d,0xffffff);
   mesh.position.copy(piezas[i].mesh.position);
   scene.add(mesh);
-  piezas[i]={...piezas[i],alto:h,ancho:w,fondo:d,espesor:espesor*10,nombre,mesh};
+  // guardar ancho/alto como los ingresó el usuario, espesor separado
+  piezas[i]={...piezas[i], alto:h, ancho:w, fondo:d, espesor:Math.round(espesor*10), nombre, mesh};
+  sincronizarGrupo(editandoId);
+  capturarEstado();
   renderLista();cerrarPanel();
 }
 
@@ -352,11 +980,14 @@ document.getElementById('pos-grid').addEventListener('click',e=>{
   }
 });
 
-// RAYCASTER — tocar pieza en 3D
+// RAYCASTER — doble toque para editar pieza
 const raycaster=new THREE.Raycaster();
 const mouse=new THREE.Vector2();
 let touchStartX=0,touchStartY=0,touchMoved=false;
-const TAP_THRESHOLD=8; // píxeles máximos para considerar tap
+let lastTapTime=0,lastTapX=0,lastTapY=0;
+const TAP_THRESHOLD=12;
+const DOUBLE_TAP_DELAY=300;
+const DOUBLE_TAP_DISTANCE=30;
 
 cvs.addEventListener('touchstart',e=>{
   if(e.touches.length!==1)return;
@@ -375,13 +1006,19 @@ cvs.addEventListener('touchmove',e=>{
 cvs.addEventListener('touchend',e=>{
   if(touchMoved||e.changedTouches.length!==1)return;
   if(document.getElementById('panel').classList.contains('open'))return;
-  const rect=cvs.getBoundingClientRect();
+  const now=Date.now();
   const t=e.changedTouches[0];
+  const dx=t.clientX-lastTapX, dy=t.clientY-lastTapY;
+  const isDoubleTap=(now-lastTapTime)<DOUBLE_TAP_DELAY && Math.hypot(dx,dy)<DOUBLE_TAP_DISTANCE;
+  lastTapTime=now; lastTapX=t.clientX; lastTapY=t.clientY;
+  const rect=cvs.getBoundingClientRect();
   mouse.x=((t.clientX-rect.left)/rect.width)*2-1;
   mouse.y=-((t.clientY-rect.top)/rect.height)*2+1;
-  checkRaycast();
+  if(isDoubleTap) checkRaycastDoble();
+  else checkRaycast();
 },{passive:true});
 
+// Click en PC
 cvs.addEventListener('click',e=>{
   if(mouseMoved)return;
   if(document.getElementById('panel').classList.contains('open'))return;
@@ -390,8 +1027,25 @@ cvs.addEventListener('click',e=>{
   mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
   checkRaycast();
 });
+cvs.addEventListener('dblclick',e=>{
+  if(document.getElementById('panel').classList.contains('open'))return;
+  const rect=cvs.getBoundingClientRect();
+  mouse.x=((e.clientX-rect.left)/rect.width)*2-1;
+  mouse.y=-((e.clientY-rect.top)/rect.height)*2+1;
+  checkRaycastDoble();
+});
 
 function checkRaycast(){
+  raycaster.setFromCamera(mouse,camera);
+  const meshes=piezas.map(p=>p.mesh.children[0]).filter(Boolean);
+  const hits=raycaster.intersectObjects(meshes);
+  if(!hits.length){seleccionarPieza(null);return;}
+  const hitMesh=hits[0].object;
+  const pieza=piezas.find(p=>p.mesh.children[0]===hitMesh);
+  if(pieza) seleccionarPieza(pieza);
+}
+
+function checkRaycastDoble(){
   raycaster.setFromCamera(mouse,camera);
   const meshes=piezas.map(p=>p.mesh.children[0]).filter(Boolean);
   const hits=raycaster.intersectObjects(meshes);
@@ -401,11 +1055,38 @@ function checkRaycast(){
   if(pieza) abrirPanelEdicion(pieza.id);
 }
 
+// IMPRIMIR
+document.getElementById('btn-print').onclick=()=>{
+  if(!piezas.length){alert('No hay piezas para imprimir.');return;}
+  const filas=piezas.map((p,i)=>`<tr>
+    <td>${i+1}</td>
+    <td>${p.pos}</td>
+    <td>${p.nombre}</td>
+    <td>${p.alto} cm</td>
+    <td>${p.ancho} cm</td>
+    <td>${p.fondo} cm</td>
+    <td>${p.espesor||18} mm</td>
+    ${p.grupoId?'<td>Grupo</td>':'<td>—</td>'}
+  </tr>`).join('');
+  const win=window.open('','_blank');
+  const scriptTag='<scr'+'ipt>window.print();<\/scr'+'ipt>';
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Despiece</title>
+  <style>body{font-family:sans-serif;padding:24px;color:#111}h2{margin-bottom:4px}p{color:#666;font-size:13px;margin-bottom:16px}table{width:100%;border-collapse:collapse;font-size:13px}th{background:#f0f0ee;padding:8px 10px;text-align:left;border-bottom:2px solid #ddd}td{padding:7px 10px;border-bottom:0.5px solid #eee}tr:last-child td{border-bottom:none}@media print{body{padding:0}}</style>
+  </head><body>
+  <h2>Despiece de mueble</h2>
+  <p>${piezas.length} piezas · Generado con MelaminaApp</p>
+  <table><thead><tr><th>#</th><th>Pos</th><th>Nombre</th><th>Alto</th><th>Ancho</th><th>Fondo</th><th>Espesor</th><th>Tipo</th></tr></thead>
+  <tbody>${filas}</tbody></table>
+  ${scriptTag}</body></html>`);
+  win.document.close();
+};
+
 // RESIZE
 window.addEventListener('resize',()=>{
   renderer.setSize(wrap.clientWidth,wrap.clientHeight);
   camera.aspect=wrap.clientWidth/wrap.clientHeight;
   camera.updateProjectionMatrix();
+  resizeSelCanvas();
 });
 
 // LOOP
