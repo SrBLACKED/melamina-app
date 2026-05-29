@@ -41,6 +41,22 @@ canvas{display:block;width:100%!important;height:100%!important;touch-action:non
 .btn-undo:active,.btn-redo:active{background:rgba(255,255,255,0.18)}
 .btn-undo svg,.btn-redo svg{width:18px;height:18px;stroke:rgba(255,255,255,0.6);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .btn-undo.disabled,.btn-redo.disabled{opacity:0.25;pointer-events:none}
+.btn-rotar{position:absolute;bottom:264px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,border-color .15s;z-index:10}
+.btn-rotar.activo{background:rgba(74,144,217,0.2);border-color:rgba(74,144,217,0.6)}
+.btn-rotar:active{background:rgba(255,255,255,0.18)}
+.btn-rotar svg{width:18px;height:18px;stroke:rgba(255,255,255,0.6);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn-rotar.activo svg{stroke:#4a90d9}
+.btn-wincha{position:absolute;bottom:320px;right:20px;width:46px;height:46px;border-radius:50%;background:rgba(255,255,255,0.07);border:0.5px solid rgba(255,255,255,0.12);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .12s,border-color .15s;z-index:10}
+.btn-wincha.activo{background:rgba(230,180,50,0.2);border-color:rgba(230,180,50,0.6)}
+.btn-wincha:active{background:rgba(255,255,255,0.18)}
+.btn-wincha svg{width:18px;height:18px;stroke:rgba(255,255,255,0.6);fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.btn-wincha.activo svg{stroke:#e6b432}
+.wincha-hint{position:absolute;top:80px;left:50%;transform:translateX(-50%);background:rgba(230,180,50,0.15);border:0.5px solid rgba(230,180,50,0.4);border-radius:20px;padding:6px 16px;font-size:12px;color:#e6b432;pointer-events:none;white-space:nowrap;display:none;z-index:15;letter-spacing:.04em}
+.wincha-resultado{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(15,20,28,0.92);border:0.5px solid rgba(230,180,50,0.5);border-radius:12px;padding:16px 24px;text-align:center;display:none;z-index:15;backdrop-filter:blur(8px)}
+.wincha-resultado-valor{font-size:32px;font-weight:300;color:#e6b432;letter-spacing:.02em}
+.wincha-resultado-unit{font-size:13px;color:#7a7060;margin-top:2px}
+.wincha-resultado-cerrar{font-size:11px;color:#5a6070;margin-top:10px;cursor:pointer;letter-spacing:.06em;text-transform:uppercase}
+.wincha-resultado-cerrar:active{color:#9a9080}
 
 /* MENÚ CONTEXTUAL */
 .ctx-overlay{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,0.25);backdrop-filter:blur(2px);display:none}
@@ -230,6 +246,21 @@ select option{background:#fff;color:#1a1810}
       <div class="ctx-item-info"><div class="ctx-item-label">Eliminar</div></div>
     </div>
   </div>
+
+  <button class="btn-wincha" id="btn-wincha" title="Medir distancia">
+    <svg viewBox="0 0 24 24"><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="9" x2="2" y2="15"/><line x1="22" y1="9" x2="22" y2="15"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="14" y1="10" x2="14" y2="14"/></svg>
+  </button>
+
+  <div class="wincha-hint" id="wincha-hint">Toca el primer punto</div>
+  <div class="wincha-resultado" id="wincha-resultado">
+    <div class="wincha-resultado-valor" id="wincha-valor">—</div>
+    <div class="wincha-resultado-unit">cm</div>
+    <div class="wincha-resultado-cerrar" onclick="cerrarWincha()">Cerrar · Nueva medición</div>
+  </div>
+
+  <button class="btn-rotar" id="btn-rotar" title="Modo rotar">
+    <svg viewBox="0 0 24 24"><path d="M21.5 2v6h-6"/><path d="M21.34 15.57a10 10 0 11-.57-8.38"/></svg>
+  </button>
 
   <button class="btn-redo disabled" id="btn-redo" title="Rehacer">
     <svg viewBox="0 0 24 24"><polyline points="15 14 20 9 15 4"/><path d="M4 20v-7a4 4 0 014-4h12"/></svg>
@@ -479,20 +510,21 @@ function hitTestPiezas(clientX,clientY){
 
 cvs.addEventListener('mousedown',e=>{
   if(e.target!==cvs)return;
+  if(modoWincha){winchaClick(e.clientX,e.clientY);return;}
   mouseStartX=e.clientX;mouseStartY=e.clientY;mouseMoved=false;
-  const sobrePieza=hitTestPiezas(e.clientX,e.clientY);
-  if(sobrePieza){
-    // Rotar cámara
+  const sobrePieza=!modoRotar&&hitTestPiezas(e.clientX,e.clientY);
+  if(modoRotar||sobrePieza){
     dragging=true;px=e.clientX;py=e.clientY;
   } else {
-    // Drag select
     dragSelecting=true;
     const rect=cvs.getBoundingClientRect();
     selRect={x1:e.clientX-rect.left,y1:e.clientY-rect.top,x2:e.clientX-rect.left,y2:e.clientY-rect.top};
   }
 });
 
+let lastMouseX=0,lastMouseY=0;
 window.addEventListener('mousemove',e=>{
+  lastMouseX=e.clientX;lastMouseY=e.clientY;
   const dx=e.clientX-mouseStartX,dy=e.clientY-mouseStartY;
   if(Math.hypot(dx,dy)>4)mouseMoved=true;
   if(dragging){theta-=(e.clientX-px)*0.35;phi=Math.max(-5,Math.min(85,phi+(e.clientY-py)*0.25));px=e.clientX;py=e.clientY;updateCam();}
@@ -501,6 +533,7 @@ window.addEventListener('mousemove',e=>{
     selRect.x2=e.clientX-rect.left;selRect.y2=e.clientY-rect.top;
     dibujarRectSel();
   }
+  if(modoWincha) dibujarWincha(e.clientX,e.clientY);
 });
 
 window.addEventListener('mouseup',e=>{
@@ -616,6 +649,7 @@ function cerrarPanelRepisas(){
   deseleccionarTodo();
 }
 function confirmarRepisas(){
+  capturarEstado();
   const cantidad=+document.getElementById('r-cantidad').value||3;
   const espacio=+document.getElementById('r-espacio').value||27;
   const bi=piezas.find(p=>p.pos==='BI');
@@ -635,7 +669,6 @@ function confirmarRepisas(){
     piezas.push({id:Date.now()+Math.random(),codigo,pos:'R',nombre:codigo,alto:esp,ancho:anchoInt,fondo:prof,espesor:Math.round(esp*10),mesh,color:colorAleatorio(),grupoId:null});
   }
   const b=bbox();target.set(b.cx,b.cy,b.cz);updateCam();
-  capturarEstado();
   renderLista();
   cerrarPanelRepisas();
 }
@@ -683,11 +716,11 @@ function agregarPieza(){
   const p=calcPos(selPos,w,h,d);
   mesh.position.set(p.x,p.y,p.z);
   scene.add(mesh);
+  capturarEstado();
   piezas.push({id:Date.now(),codigo,pos:selPos,nombre,alto:h,ancho:w,fondo:d,espesor:Math.round(espesor*10),mesh,color:colorAleatorio(),grupoId:null});
   const b=bbox();target.set(b.cx,b.cy,b.cz);
   radius=Math.max(80,Math.max(b.w,b.h,b.d)*2.5);
   updateCam();renderLista();cerrarPanel();
-  capturarEstado();
   document.getElementById('hint').style.display='none';
 }
 
@@ -783,6 +816,7 @@ function ctxDuplicar(modo){
   cerrarCtx();
   const origIdx=piezas.findIndex(x=>x.id===idOrig);
   if(origIdx===-1){console.warn('No se encontró pieza',idOrig);return;}
+  capturarEstado();
   const orig=piezas[origIdx];
 
   const gap=5;
@@ -797,20 +831,17 @@ function ctxDuplicar(modo){
   if(modo==='independiente'){
     const codigo=siguienteCodigo();
     nuevaPieza={...orig, id:nuevoId, codigo, nombre:codigo, mesh, color:colorAleatorio(), grupoId:null};
-    // libre va al final
     piezas.push(nuevaPieza);
   } else {
     const grupoId=orig.grupoId||orig.id;
     if(!orig.grupoId) piezas[origIdx].grupoId=grupoId;
     const codigo=codigoGrupo(orig);
     nuevaPieza={...orig, id:nuevoId, codigo, nombre:codigo, mesh, color:orig.color, grupoId};
-    // grupo se inserta justo debajo del original
     piezas.splice(origIdx+1, 0, nuevaPieza);
   }
 
   const b=bbox();target.set(b.cx,b.cy,b.cz);
   updateCam();
-  capturarEstado();
   renderLista();
 }
 
@@ -838,8 +869,8 @@ let editandoId=null;
 const undoStack=[];
 const redoStack=[];
 
-function capturarEstado(){
-  // Serializa solo los datos (no el mesh)
+function guardarParaUndo(){
+  // Captura el estado ANTES de un cambio
   const estado=piezas.map(p=>({
     id:p.id, codigo:p.codigo, pos:p.pos, nombre:p.nombre,
     alto:p.alto, ancho:p.ancho, fondo:p.fondo, espesor:p.espesor,
@@ -847,10 +878,13 @@ function capturarEstado(){
     px:p.mesh.position.x, py:p.mesh.position.y, pz:p.mesh.position.z
   }));
   undoStack.push(JSON.stringify(estado));
-  redoStack.length=0; // limpiar redo al hacer nueva acción
+  redoStack.length=0;
   if(undoStack.length>50) undoStack.shift();
   actualizarBotonesHistorial();
 }
+
+// mantener compatibilidad con llamadas existentes
+const capturarEstado=guardarParaUndo;
 
 function restaurarEstado(estadoStr){
   // Limpiar meshes actuales
@@ -897,8 +931,212 @@ function actualizarBotonesHistorial(){
   document.getElementById('btn-redo').classList.toggle('disabled',redoStack.length===0);
 }
 
-document.getElementById('btn-undo').onclick=undo;
-document.getElementById('btn-redo').onclick=redo;
+// MODO ROTAR
+let modoRotar=false;
+document.getElementById('btn-rotar').onclick=()=>{
+  modoRotar=!modoRotar;
+  document.getElementById('btn-rotar').classList.toggle('activo',modoRotar);
+};
+
+// WINCHA
+let modoWincha=false;
+let winchaP1=null;
+let winchaCanvas=null;
+let winchaCtx=null;
+let snapActual=null; // vértice más cercano en pantalla
+
+const SNAP_THRESHOLD=28; // px — radio de imán
+
+// Obtener todos los vértices 3D de todas las piezas proyectados en pantalla
+function obtenerVertices(){
+  const vertices=[];
+  const rect=cvs.getBoundingClientRect();
+  piezas.forEach(p=>{
+    const mesh=p.mesh.children[0];
+    if(!mesh)return;
+    const geo=mesh.geometry;
+    const pos=geo.attributes.position;
+    const vSet=new Set();
+    for(let i=0;i<pos.count;i++){
+      const v=new THREE.Vector3(pos.getX(i),pos.getY(i),pos.getZ(i));
+      // transformar a world
+      v.applyMatrix4(mesh.matrixWorld);
+      const key=`${v.x.toFixed(2)},${v.y.toFixed(2)},${v.z.toFixed(2)}`;
+      if(vSet.has(key))continue;
+      vSet.add(key);
+      // proyectar a pantalla
+      const vp=v.clone().project(camera);
+      const sx=(vp.x*0.5+0.5)*rect.width;
+      const sy=(-vp.y*0.5+0.5)*rect.height;
+      vertices.push({mundo:v.clone(),sx,sy});
+    }
+  });
+  return vertices;
+}
+
+function verticesCercano(clientX,clientY){
+  const rect=cvs.getBoundingClientRect();
+  const cx=clientX-rect.left, cy=clientY-rect.top;
+  const verts=obtenerVertices();
+  let mejor=null, mejorDist=Infinity;
+  verts.forEach(v=>{
+    const d=Math.hypot(v.sx-cx,v.sy-cy);
+    if(d<mejorDist){mejorDist=d;mejor=v;}
+  });
+  return mejorDist<SNAP_THRESHOLD?mejor:null;
+}
+
+function dibujarWincha(cursorX,cursorY){
+  if(!winchaCanvas||!winchaCtx)return;
+  winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
+  const rect=cvs.getBoundingClientRect();
+  const cx=cursorX-rect.left, cy=cursorY-rect.top;
+
+  // Snap al vértice más cercano al cursor
+  const snap=verticesCercano(cursorX,cursorY);
+  snapActual=snap;
+  const px=snap?snap.sx:cx;
+  const py=snap?snap.sy:cy;
+
+  // Reprojectar P1 en pantalla (se mueve con la cámara pero queda anclado al vértice 3D)
+  let p1sx=null,p1sy=null;
+  if(winchaP1){
+    const vp=winchaP1.mundo.clone().project(camera);
+    p1sx=(vp.x*0.5+0.5)*rect.width;
+    p1sy=(-vp.y*0.5+0.5)*rect.height;
+  }
+
+  // Círculo de ancla en snap actual
+  if(snap){
+    winchaCtx.strokeStyle='rgba(230,180,50,0.9)';
+    winchaCtx.lineWidth=1.5;
+    winchaCtx.setLineDash([]);
+    winchaCtx.beginPath();winchaCtx.arc(snap.sx,snap.sy,8,0,Math.PI*2);winchaCtx.stroke();
+    winchaCtx.beginPath();
+    winchaCtx.moveTo(snap.sx-5,snap.sy);winchaCtx.lineTo(snap.sx+5,snap.sy);
+    winchaCtx.moveTo(snap.sx,snap.sy-5);winchaCtx.lineTo(snap.sx,snap.sy+5);
+    winchaCtx.stroke();
+  }
+
+  // Línea dinámica desde P1 reprojectado hasta cursor/snap
+  if(winchaP1&&p1sx!==null){
+    // Punto P1 anclado
+    winchaCtx.strokeStyle='#e6b432';winchaCtx.lineWidth=1.5;winchaCtx.setLineDash([]);
+    winchaCtx.beginPath();winchaCtx.arc(p1sx,p1sy,8,0,Math.PI*2);winchaCtx.stroke();
+    winchaCtx.fillStyle='#e6b432';
+    winchaCtx.beginPath();winchaCtx.arc(p1sx,p1sy,3,0,Math.PI*2);winchaCtx.fill();
+
+    // Línea hasta cursor
+    winchaCtx.strokeStyle='rgba(230,180,50,0.7)';
+    winchaCtx.lineWidth=1.5;winchaCtx.setLineDash([6,3]);
+    winchaCtx.beginPath();winchaCtx.moveTo(p1sx,p1sy);winchaCtx.lineTo(px,py);winchaCtx.stroke();
+    winchaCtx.setLineDash([]);
+
+    // Distancia dinámica solo si hay snap en P2
+    if(snap){
+      const dist=winchaP1.mundo.distanceTo(snap.mundo);
+      const distCm=Math.round(dist*10)/10;
+      const mx2=(p1sx+snap.sx)/2, my2=(p1sy+snap.sy)/2;
+      winchaCtx.fillStyle='rgba(15,20,28,0.9)';
+      winchaCtx.beginPath();winchaCtx.roundRect(mx2-34,my2-14,68,22,6);winchaCtx.fill();
+      winchaCtx.fillStyle='#e6b432';
+      winchaCtx.font='bold 12px system-ui';
+      winchaCtx.textAlign='center';
+      winchaCtx.fillText(distCm+' cm',mx2,my2+4);
+    }
+  }
+}
+
+document.getElementById('btn-wincha').onclick=()=>{
+  modoWincha=!modoWincha;
+  document.getElementById('btn-wincha').classList.toggle('activo',modoWincha);
+  if(modoWincha){
+    winchaP1=null;
+    document.getElementById('wincha-hint').style.display='block';
+    document.getElementById('wincha-hint').textContent='Acerca el cursor a un vértice';
+    document.getElementById('wincha-resultado').style.display='none';
+    if(!winchaCanvas){
+      winchaCanvas=document.createElement('canvas');
+      winchaCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:6';
+      wrap.appendChild(winchaCanvas);
+      winchaCtx=winchaCanvas.getContext('2d');
+    }
+    winchaCanvas.width=wrap.clientWidth;
+    winchaCanvas.height=wrap.clientHeight;
+  } else {
+    cerrarWincha();
+  }
+};
+
+function cerrarWincha(){
+  modoWincha=false;
+  winchaP1=null;
+  snapActual=null;
+  document.getElementById('btn-wincha').classList.remove('activo');
+  document.getElementById('wincha-hint').style.display='none';
+  document.getElementById('wincha-resultado').style.display='none';
+  if(winchaCanvas) winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
+}
+
+function winchaClick(clientX,clientY){
+  const snap=verticesCercano(clientX,clientY);
+  const rect=cvs.getBoundingClientRect();
+  // Si no hay snap, intentar hit normal en superficie
+  let punto3D, sx, sy;
+  if(snap){
+    punto3D=snap.mundo;
+    sx=snap.sx; sy=snap.sy;
+  } else {
+    const mx=((clientX-rect.left)/rect.width)*2-1;
+    const my=-((clientY-rect.top)/rect.height)*2+1;
+    const ray=new THREE.Raycaster();
+    ray.setFromCamera(new THREE.Vector2(mx,my),camera);
+    const hits=ray.intersectObjects(piezas.map(p=>p.mesh.children[0]).filter(Boolean));
+    if(!hits.length)return;
+    punto3D=hits[0].point;
+    sx=clientX-rect.left; sy=clientY-rect.top;
+  }
+
+  if(!winchaP1){
+    winchaP1={mundo:punto3D};
+    document.getElementById('wincha-hint').textContent='Acerca al segundo vértice';
+    // El punto se dibuja en dibujarWincha via reproyección
+    dibujarWincha(clientX,clientY);
+  } else {
+    const dist=winchaP1.mundo.distanceTo(punto3D);
+    const distCm=Math.round(dist*10)/10;
+
+    // Reprojectar P1
+    const rect2=cvs.getBoundingClientRect();
+    const vp=winchaP1.mundo.clone().project(camera);
+    const p1sx2=(vp.x*0.5+0.5)*rect2.width;
+    const p1sy2=(-vp.y*0.5+0.5)*rect2.height;
+
+    winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
+    winchaCtx.strokeStyle='#e6b432';winchaCtx.lineWidth=1.5;
+    winchaCtx.setLineDash([6,3]);
+    winchaCtx.beginPath();winchaCtx.moveTo(p1sx2,p1sy2);winchaCtx.lineTo(sx,sy);winchaCtx.stroke();
+    winchaCtx.setLineDash([]);
+    [{sx:p1sx2,sy:p1sy2},{sx,sy}].forEach(pt=>{
+      winchaCtx.strokeStyle='#e6b432';winchaCtx.lineWidth=1.5;
+      winchaCtx.beginPath();winchaCtx.arc(pt.sx,pt.sy,8,0,Math.PI*2);winchaCtx.stroke();
+      winchaCtx.fillStyle='#e6b432';
+      winchaCtx.beginPath();winchaCtx.arc(pt.sx,pt.sy,3,0,Math.PI*2);winchaCtx.fill();
+    });
+    const mx2=(p1sx2+sx)/2, my2=(p1sy2+sy)/2;
+    winchaCtx.fillStyle='rgba(15,20,28,0.9)';
+    winchaCtx.beginPath();winchaCtx.roundRect(mx2-34,my2-14,68,22,6);winchaCtx.fill();
+    winchaCtx.fillStyle='#e6b432';
+    winchaCtx.font='bold 13px system-ui';
+    winchaCtx.textAlign='center';
+    winchaCtx.fillText(distCm+' cm',mx2,my2+4);
+
+    document.getElementById('wincha-hint').style.display='none';
+    document.getElementById('wincha-resultado').style.display='block';
+    document.getElementById('wincha-valor').textContent=distCm;
+    winchaP1=null;
+  }
+}
 document.getElementById('btn-cancel').onclick=cerrarPanel;
 document.getElementById('btn-ok').onclick=()=>modoEdicion?guardarEdicion():agregarPieza();
 
@@ -957,10 +1195,9 @@ function guardarEdicion(){
   const mesh=crearMesh(w,h,d,0xffffff);
   mesh.position.copy(piezas[i].mesh.position);
   scene.add(mesh);
-  // guardar ancho/alto como los ingresó el usuario, espesor separado
+  capturarEstado();
   piezas[i]={...piezas[i], alto:h, ancho:w, fondo:d, espesor:Math.round(espesor*10), nombre, mesh};
   sincronizarGrupo(editandoId);
-  capturarEstado();
   renderLista();cerrarPanel();
 }
 
@@ -1006,6 +1243,7 @@ cvs.addEventListener('touchmove',e=>{
 cvs.addEventListener('touchend',e=>{
   if(touchMoved||e.changedTouches.length!==1)return;
   if(document.getElementById('panel').classList.contains('open'))return;
+  if(modoWincha){winchaClick(e.changedTouches[0].clientX,e.changedTouches[0].clientY);return;}
   const now=Date.now();
   const t=e.changedTouches[0];
   const dx=t.clientX-lastTapX, dy=t.clientY-lastTapY;
@@ -1090,7 +1328,14 @@ window.addEventListener('resize',()=>{
 });
 
 // LOOP
-(function animate(){requestAnimationFrame(animate);renderer.render(scene,camera);})();
+(function animate(){
+  requestAnimationFrame(animate);
+  renderer.render(scene,camera);
+  // Reproyectar P1 de wincha en cada frame si está activa
+  if(modoWincha&&winchaP1&&winchaCanvas){
+    dibujarWincha(lastMouseX||0,lastMouseY||0);
+  }
+})();
 </script>
 </body>
 </html>
