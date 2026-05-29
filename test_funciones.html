@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test Funciones</title>
+<style>
+body{font-family:system-ui;background:#1a1e25;color:#e8e0cc;padding:20px}
+button{display:block;width:100%;padding:14px;margin:8px 0;background:#4a90d9;color:#fff;border:none;border-radius:8px;font-size:16px;cursor:pointer}
+button:active{opacity:.8}
+#log{background:#0a0c10;border-radius:8px;padding:12px;margin-top:16px;font-size:12px;font-family:monospace;min-height:120px;white-space:pre-wrap}
+img{width:100%;border-radius:8px;margin-top:8px;display:none}
+</style>
+</head>
+<body>
+<h2>Test de funciones críticas</h2>
+
+<button onclick="testRenderer()">1. Probar Three.js + Renderer</button>
+<button onclick="testCaptura()">2. Probar captura de imagen</button>
+<button onclick="testVentana()">3. Probar window.open (imprimir)</button>
+<button onclick="testWincha()">4. Probar canvas wincha</button>
+
+<div id="log">Toca un botón para probar...\n</div>
+<img id="preview" alt="captura">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+function log(msg){document.getElementById('log').textContent+=msg+'\n';}
+
+let renderer,scene,camera;
+
+function testRenderer(){
+  log('--- Test 1: Three.js ---');
+  try{
+    const div=document.createElement('div');
+    div.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;z-index:-1';
+    document.body.appendChild(div);
+    renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    renderer.setPixelRatio(devicePixelRatio);
+    div.appendChild(renderer.domElement);
+    scene=new THREE.Scene();
+    scene.background=new THREE.Color(0x1a1e25);
+    camera=new THREE.PerspectiveCamera(45,window.innerWidth/window.innerHeight,0.1,500);
+    camera.position.set(80,60,80);
+    camera.lookAt(0,0,0);
+    scene.add(new THREE.AmbientLight(0xffffff,1));
+    // Cubo de prueba
+    const geo=new THREE.BoxGeometry(20,40,20);
+    const mat=new THREE.MeshPhongMaterial({color:0xffffff});
+    const mesh=new THREE.Mesh(geo,mat);
+    scene.add(mesh);
+    renderer.render(scene,camera);
+    log('✅ Three.js OK - renderer creado');
+    log('   Canvas: '+renderer.domElement.width+'x'+renderer.domElement.height);
+  }catch(e){log('❌ Error: '+e.message);}
+}
+
+function testCaptura(){
+  log('--- Test 2: Captura ---');
+  if(!renderer){log('⚠️ Primero ejecuta Test 1');return;}
+  try{
+    renderer.render(scene,camera);
+    const data=renderer.domElement.toDataURL('image/png');
+    log('✅ toDataURL OK - longitud: '+data.length);
+    if(data.length<1000){
+      log('⚠️ Imagen muy pequeña - probablemente en blanco');
+      log('   Intentando con canvas auxiliar...');
+      const aux=document.createElement('canvas');
+      aux.width=renderer.domElement.width;
+      aux.height=renderer.domElement.height;
+      const ctx=aux.getContext('2d');
+      ctx.drawImage(renderer.domElement,0,0);
+      const data2=aux.toDataURL('image/png');
+      log('   Canvas auxiliar: '+data2.length);
+      document.getElementById('preview').src=data2;
+      document.getElementById('preview').style.display='block';
+    } else {
+      document.getElementById('preview').src=data;
+      document.getElementById('preview').style.display='block';
+      log('   Vista previa mostrada abajo');
+    }
+  }catch(e){log('❌ Error: '+e.message);}
+}
+
+function testVentana(){
+  log('--- Test 3: window.open ---');
+  try{
+    const win=window.open('','_blank');
+    if(!win){log('❌ window.open bloqueado por el browser');return;}
+    win.document.write('<html><body><h1>✅ window.open funciona</h1><p>Esta ventana se abrió correctamente.</p></body></html>');
+    win.document.close();
+    log('✅ window.open OK');
+  }catch(e){log('❌ Error: '+e.message);}
+}
+
+function testWincha(){
+  log('--- Test 4: Canvas wincha ---');
+  try{
+    const cvs=document.createElement('canvas');
+    cvs.width=window.innerWidth;
+    cvs.height=200;
+    cvs.style.cssText='display:block;border-radius:8px;margin-top:8px';
+    document.body.appendChild(cvs);
+    const ctx=cvs.getContext('2d');
+    ctx.fillStyle='#1a1e25';ctx.fillRect(0,0,cvs.width,200);
+    ctx.strokeStyle='#e6b432';ctx.lineWidth=2;
+    ctx.beginPath();ctx.arc(100,100,20,0,Math.PI*2);ctx.stroke();
+    ctx.beginPath();ctx.moveTo(100,100);ctx.lineTo(300,100);ctx.stroke();
+    ctx.beginPath();ctx.arc(300,100,20,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='#e6b432';ctx.font='bold 14px system-ui';ctx.textAlign='center';
+    ctx.fillText('200 cm',200,90);
+    log('✅ Canvas wincha OK - dibujado correctamente');
+  }catch(e){log('❌ Error: '+e.message);}
+}
+</script>
+</body>
+</html>
