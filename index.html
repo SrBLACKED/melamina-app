@@ -50,7 +50,8 @@ select option{background:#1e2229;color:#e8e0cc}
 
 /* ── PANTALLA 2 ── */
 #s2{position:fixed;inset:0;z-index:50;display:none}
-#s2.show{display:block}
+#s2.show{display:block!important}
+
 
 /* CANVAS 3D */
 #wrap3d{position:absolute;inset:0}
@@ -145,7 +146,7 @@ select option{background:#1e2229;color:#e8e0cc}
 
 /* PANTALLA PREVIEW */
 #preview-screen{position:fixed;inset:0;z-index:200;background:#13161b;display:none;flex-direction:column}
-#preview-screen.open{display:flex}
+#preview-screen.open{display:flex!important}
 .ps-top{display:flex;align-items:center;justify-content:space-between;padding:52px 16px 12px;border-bottom:0.5px solid rgba(255,255,255,0.07);flex-shrink:0}
 .ps-title{font-size:15px;font-weight:600;color:#e8e0cc}
 .ps-sub{font-size:10px;color:#4a5060;margin-top:2px}
@@ -412,10 +413,14 @@ function iniciar(){
   proyectoData={nombre,alto,ancho,prof,esp,marca:marcaActual||'Sin marca',plarga,pancho};
   document.getElementById('hud-title').textContent=nombre;
   document.getElementById('hud-sub').textContent=proyectoData.marca+' · '+alto+'×'+ancho+'×'+prof+' cm';
+  // Mostrar s2 PRIMERO para que wrap3d tenga dimensiones reales
   document.getElementById('s1').classList.add('hide');
   document.getElementById('s2').classList.add('show');
-  initScene();
-  generarBase(alto,ancho,prof,esp);
+  // setTimeout garantiza que iOS actualice dimensiones antes de initScene
+  setTimeout(()=>{
+    initScene();
+    generarBase(alto,ancho,prof,esp);
+  },100);
 }
 
 // ── THREE.JS ──
@@ -427,9 +432,11 @@ let lastMouseX=0,lastMouseY=0;
 
 function initScene(){
   const wrap=document.getElementById('wrap3d');
+  const W=wrap.clientWidth||window.innerWidth;
+  const H=wrap.clientHeight||window.innerHeight;
   renderer=new THREE.WebGLRenderer({antialias:true,preserveDrawingBuffer:true});
   renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-  renderer.setSize(wrap.clientWidth,wrap.clientHeight);
+  renderer.setSize(W,H);
   renderer.shadowMap.enabled=true;
   wrap.appendChild(renderer.domElement);
 
@@ -437,7 +444,7 @@ function initScene(){
   scene.background=new THREE.Color(0x1a1e25);
   scene.fog=new THREE.FogExp2(0x1a1e25,0.003);
 
-  camera=new THREE.PerspectiveCamera(42,wrap.clientWidth/wrap.clientHeight,0.1,600);
+  camera=new THREE.PerspectiveCamera(42,W/H,0.1,600);
   updateCam();
 
   scene.add(new THREE.AmbientLight(0xffffff,0.85));
@@ -459,26 +466,22 @@ function initScene(){
   selCanvas=document.createElement('canvas');
   selCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:5';
   wrap.appendChild(selCanvas);
-  resizeSel();
+  selCanvas.width=W;selCanvas.height=H;
   selCtx=selCanvas.getContext('2d');
 
-  // Canvas wincha
-  winchaCanvas=document.createElement('canvas');
-  winchaCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:6';
-  wrap.appendChild(winchaCanvas);
-  winchaCtx=winchaCanvas.getContext('2d');
-  winchaCanvas.width=wrap.clientWidth;
-  winchaCanvas.height=wrap.clientHeight;
-
   setupEvents();
+
   (function loop(){animId=requestAnimationFrame(loop);renderer.render(scene,camera);
     if(modoWincha&&winchaP1) dibujarWincha(lastMouseX,lastMouseY);
   })();
 
   window.addEventListener('resize',()=>{
-    renderer.setSize(wrap.clientWidth,wrap.clientHeight);
-    camera.aspect=wrap.clientWidth/wrap.clientHeight;camera.updateProjectionMatrix();
-    resizeSel();winchaCanvas.width=wrap.clientWidth;winchaCanvas.height=wrap.clientHeight;
+    const w=wrap.clientWidth||window.innerWidth;
+    const h=wrap.clientHeight||window.innerHeight;
+    renderer.setSize(w,h);
+    camera.aspect=w/h;camera.updateProjectionMatrix();
+    if(selCanvas){selCanvas.width=w;selCanvas.height=h;}
+    if(winchaCanvas){winchaCanvas.width=w;winchaCanvas.height=h;}
   });
 }
 
@@ -1047,29 +1050,46 @@ function updUndoUI(){document.getElementById('tb-undo').style.opacity=undoSt.len
 const SNAP_D=28;
 
 function obtenerVerts(){
-  const verts=[],rect=renderer.domElement.getBoundingClientRect();
-  piezas.forEach(p=>{const m=p.mesh.children[0];if(!m)return;const pos=m.geometry.attributes.position,set=new Set();
-    for(let i=0;i<pos.count;i++){const v=new THREE.Vector3(pos.getX(i),pos.getY(i),pos.getZ(i));v.applyMatrix4(m.matrixWorld);
-      const k=`${v.x.toFixed(1)},${v.y.toFixed(1)},${v.z.toFixed(1)}`;if(set.has(k))continue;set.add(k);
-      const vp=v.clone().project(camera);const sx=(vp.x*.5+.5)*rect.width,sy=(-vp.y*.5+.5)*rect.height;verts.push({mundo:v.clone(),sx,sy});}});
+  if(!renderer||!camera||!piezas.length)return[];
+  const verts=[];
+  const rect=renderer.domElement.getBoundingClientRect();
+  const rw=rect.width||window.innerWidth;
+  const rh=rect.height||window.innerHeight;
+  piezas.forEach(p=>{
+    const m=p.mesh.children[0];if(!m)return;
+    const pos=m.geometry.attributes.position,set=new Set();
+    for(let i=0;i<pos.count;i++){
+      const v=new THREE.Vector3(pos.getX(i),pos.getY(i),pos.getZ(i));
+      v.applyMatrix4(m.matrixWorld);
+      const k=`${v.x.toFixed(1)},${v.y.toFixed(1)},${v.z.toFixed(1)}`;
+      if(set.has(k))continue;set.add(k);
+      const vp=v.clone().project(camera);
+      const sx=(vp.x*.5+.5)*rw;
+      const sy=(-vp.y*.5+.5)*rh;
+      verts.push({mundo:v.clone(),sx,sy});
+    }
+  });
   return verts;
 }
 function vertCercano(cx,cy){
+  if(!renderer)return null;
   const rect=renderer.domElement.getBoundingClientRect();
   const lx=cx-rect.left,ly=cy-rect.top;
-  const verts=obtenerVerts();let mejor=null,bd=Infinity;
+  const verts=obtenerVerts();
+  let mejor=null,bd=Infinity;
   verts.forEach(v=>{const d=Math.hypot(v.sx-lx,v.sy-ly);if(d<bd){bd=d;mejor=v;}});
   return bd<SNAP_D?mejor:null;
 }
 function ensureWinchaCanvas(){
   if(winchaCanvas&&winchaCtx)return;
   const wrap=document.getElementById('wrap3d');
+  if(!wrap)return;
   winchaCanvas=document.createElement('canvas');
   winchaCanvas.style.cssText='position:absolute;inset:0;pointer-events:none;z-index:6';
   wrap.appendChild(winchaCanvas);
   winchaCtx=winchaCanvas.getContext('2d');
-  winchaCanvas.width=wrap.clientWidth;
-  winchaCanvas.height=wrap.clientHeight;
+  winchaCanvas.width=wrap.clientWidth||window.innerWidth;
+  winchaCanvas.height=wrap.clientHeight||window.innerHeight;
 }
 function dibujarWincha(cx,cy){
   ensureWinchaCanvas();
@@ -1138,44 +1158,63 @@ function cerrarWincha(){
 
 // ── VISTA FRONTAL (botón 3D) ──
 function vistaFrontal(){
+  if(!renderer)return;
   const b=bbox();
   target.set(b.cx,b.cy,b.cz);
-  theta=0; phi=5;
+  theta=0;phi=5;
   radius=Math.max(80,Math.max(b.w,b.h,b.d)*2.2);
   updateCam();
-  setTool('3d',document.getElementById('tb-3d'));
+  // Solo resetear herramienta sin recursión
+  herramienta='3d';
+  document.querySelectorAll('.tb-btn').forEach(b=>b.classList.remove('activo'));
+  document.getElementById('tb-3d').classList.add('activo');
+  document.getElementById('hint3d').style.display='none';
+  // Cerrar wincha si estaba activa
+  if(modoWincha){
+    modoWincha=false;winchaP1=null;
+    document.getElementById('wincha-hint').style.display='none';
+    document.getElementById('wincha-res').style.display='none';
+    if(winchaCtx)winchaCtx.clearRect(0,0,winchaCanvas.width,winchaCanvas.height);
+  }
 }
 
-// ── PREVIEW / IMPRIMIR ──
 function abrirPreview(){
-  if(!piezas.length){alert('No hay piezas para mostrar.');return;}
-  requestAnimationFrame(()=>{
-    try{
-      renderer.render(scene,camera);
-      const img=renderer.domElement.toDataURL('image/png');
-      const b=bbox();
-      const titulo=document.getElementById('hud-title').textContent||'Proyecto';
-      const marca=(proyectoData&&proyectoData.marca)||'';
-      document.getElementById('ps-title').textContent=titulo;
-      document.getElementById('ps-sub').textContent=(marca?marca+' · ':'')+piezas.length+' piezas';
-      const pHTML=piezas.map(p=>`<div class="ps-pieza">
-        <div class="ps-pdot" style="background:#${(p.color||0x4a90d9).toString(16).padStart(6,'0')}"></div>
-        <div class="ps-pinfo"><div class="ps-pcode">${p.codigo||p.nombre} · ${p.pos}</div><div class="ps-pdim">${(+p.alto).toFixed(1)} × ${(+p.ancho).toFixed(1)} × ${(+p.fondo).toFixed(1)} cm</div></div>
-        <div class="ps-pesp">${p.espesor||18} mm</div>
-      </div>`).join('');
-      document.getElementById('ps-body').innerHTML=`
-        <div class="ps-card">
-          <img class="ps-render" id="ps-img" src="${img}">
-          <div class="ps-dims">
-            <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.h*10)/10}</div><div class="ps-dim-lbl">Alto cm</div></div>
-            <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.w*10)/10}</div><div class="ps-dim-lbl">Ancho cm</div></div>
-            <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.d*10)/10}</div><div class="ps-dim-lbl">Prof cm</div></div>
-          </div>
-        </div>
-        <div class="ps-sec">Piezas (${piezas.length})</div>${pHTML}`;
-      document.getElementById('preview-screen').classList.add('open');
-    }catch(err){console.error('Preview error:',err);alert('Error al generar preview: '+err.message);}
-  });
+  if(!renderer||!scene||!camera){alert('El 3D no está listo.');return;}
+  if(!piezas.length){alert('No hay piezas.');return;}
+
+  // Captura exactamente como en el test que funcionó
+  renderer.render(scene,camera);
+  const imgSrc=renderer.domElement.toDataURL('image/png');
+
+  const b=bbox();
+  const titulo=proyectoData.nombre||'Proyecto';
+  const marca=proyectoData.marca||'';
+
+  document.getElementById('ps-title').textContent=titulo;
+  document.getElementById('ps-sub').textContent=(marca?marca+' · ':'')+piezas.length+' piezas';
+
+  const pHTML=piezas.map((p,i)=>`
+    <div class="ps-pieza">
+      <div class="ps-pdot" style="background:#${((p.color)||0x4a90d9).toString(16).padStart(6,'0')}"></div>
+      <div class="ps-pinfo">
+        <div class="ps-pcode">${p.codigo||'P'+(i+1)} · ${p.pos}</div>
+        <div class="ps-pdim">A:${(+p.alto).toFixed(1)} × An:${(+p.ancho).toFixed(1)} × F:${(+p.fondo).toFixed(1)} cm · ${p.espesor||18}mm</div>
+      </div>
+    </div>`).join('');
+
+  document.getElementById('ps-body').innerHTML=`
+    <div class="ps-card">
+      <img class="ps-render" id="ps-img" src="${imgSrc}">
+      <div class="ps-dims">
+        <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.h*10)/10}</div><div class="ps-dim-lbl">Alto cm</div></div>
+        <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.w*10)/10}</div><div class="ps-dim-lbl">Ancho cm</div></div>
+        <div class="ps-dim"><div class="ps-dim-val">${Math.round(b.d*10)/10}</div><div class="ps-dim-lbl">Prof cm</div></div>
+      </div>
+    </div>
+    <div class="ps-sec">Piezas (${piezas.length})</div>
+    ${pHTML}`;
+
+  document.getElementById('preview-screen').classList.add('open');
 }
 function cerrarPreview(){document.getElementById('preview-screen').classList.remove('open');}
 function imprimirDespiece(){
